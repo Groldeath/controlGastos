@@ -16,8 +16,8 @@ jobs:
         uses: https://github.com/docker/login-action@v3 # <--- URL completa
         with:
           registry: gitea.servespinoza.xyz
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
 
       - name: Build y Push de Backend
         run: |
