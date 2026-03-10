@@ -30,6 +30,5 @@ jobs:
         run: |
           docker build \
             --tag gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest \
-            --build-arg VITE_API_URL=http://192.168.0.97:3000 \
             ./frontend
           docker push gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest
