@@ -1,0 +1,35 @@
+name: CI/CD Control de Gastos
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código
+        uses: actions/checkout@v4
+
+      - name: Iniciar sesión en Gitea Registry
+        uses: actions/docker/login@v1
+        with:
+          registry: gitea.servespinoza.xyz
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build y Push de Backend
+        run: |
+          docker build \
+            --tag gitea.servespinoza.xyz/luismario/controlgastos-backend:latest \
+            ./backend
+          docker push gitea.servespinoza.xyz/luismario/controlgastos-backend:latest
+
+      - name: Build y Push de Frontend
+        run: |
+          docker build \
+            --tag gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest \
+            --build-arg VITE_API_URL=http://192.168.0.97:3000 \
+            ./frontend
+          docker push gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest

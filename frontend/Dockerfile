@@ -9,6 +9,10 @@ RUN npm ci
 # Copiar archivos fuente
 COPY . .
 
+# Inyectar variables de entorno para Vite en tiempo de construcción
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Construir para producción (TypeScript y Vite)
 RUN npm run build
 
