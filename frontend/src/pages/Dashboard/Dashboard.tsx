@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
                                                             )}
                                                         </td>
                                                         <td className={styles.dateCell}>
-                                                            {new Date(trx.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                                                            {new Date(trx.fecha).toLocaleDateString('es-MX', { timeZone: 'UTC', day: '2-digit', month: 'short' })}
                                                         </td>
                                                         <td className={styles.descCell}>{trx.descripcion}</td>
                                                         <td className={styles.catCell}>{trx.categoria?.nombre || 'General'}</td>
