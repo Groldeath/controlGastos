@@ -1,0 +1,77 @@
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(13, 17, 23, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+}
+
+.modalWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    pointer-events: none;
+    /* Allows clicking backdrop through the wrapper */
+    padding: var(--spacing-md);
+}
+
+.modal {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    /* Re-enable clicks on the modal itself */
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.closeButton {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 6px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.closeButton:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface-hover);
+}
+
+.content {
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    flex: 1;
+}

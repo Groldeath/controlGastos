@@ -1,0 +1,26 @@
+.layoutContainer {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.pageContent {
+    flex: 1;
+    padding: var(--spacing-lg);
+    max-width: 1400px;
+    /* Limita el ancho en pantallas super wide */
+    margin: 0 auto;
+    width: 100%;
+}

@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Dark First Premium Colors */
+  --bg-color: #0d1117;       /* Fondo ultra oscuro pero no negro absoluto */
+  --bg-surface: #161b22;     /* Fondo de tarjetas y paneles */
+  --bg-surface-hover: #21262d; /* Hover en tarjetas */
+  --bg-surface-elevated: #282f38; /* Modales o menús flotantes */
+  
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  
+  --accent-primary: #3b82f6; /* Azul eléctrico premium */
+  --accent-primary-hover: #2563eb;
+  
+  --accent-success: #10b981; /* Verde esmeralda */
+  --accent-danger: #ef4444;  /* Rojo suave */
+  --accent-warning: #f59e0b; /* Ambar */
+
+  --border-color: #30363d;
+  --focus-ring: rgba(59, 130, 246, 0.4);
+
+  /* Tamaños y Espaciados */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Animaciones Standard */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.25s ease-out;
+  
+  /* Sombras y Glow (Glassmorphism sutil) */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+/* 
+  Soporte futuro para modo claro.
+  Podremos alternar agregando una clase 'light-mode' al body 
+*/
+.light-mode {
+  --bg-color: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-surface-elevated: #e2e8f0;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  
+  --border-color: #cbd5e1;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-primary-hover);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Scrollbar personalizada premium */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color); 
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary); 
+}

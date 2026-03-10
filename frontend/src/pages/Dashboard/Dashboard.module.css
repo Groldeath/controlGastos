@@ -1,0 +1,295 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.header {
+    margin-bottom: var(--spacing-sm);
+}
+
+.title {
+    font-size: 1.8rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.breakdownGrid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--spacing-lg);
+}
+
+@media (min-width: 640px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .breakdownGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.loaderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: var(--accent-primary);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.recentSection {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.recentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    background-color: var(--accent-primary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.addBtn:hover {
+    background-color: var(--accent-primary-hover);
+}
+
+.viewAllBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--accent-primary);
+    transition: color var(--transition-fast);
+}
+
+.viewAllBtn:hover {
+    color: var(--accent-primary-hover);
+}
+
+.emptyState {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    font-style: italic;
+}
+
+.listContainer {
+    width: 100%;
+}
+
+.tableContainer {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.table th {
+    text-align: left;
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr {
+    transition: background-color var(--transition-fast);
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-surface-hover);
+}
+
+.iconCell {
+    width: 40px;
+    text-align: center;
+}
+
+.iconInc {
+    color: var(--accent-success);
+}
+
+.iconExp {
+    color: var(--accent-danger);
+}
+
+.iconSav {
+    color: var(--accent-warning);
+}
+
+.descCell {
+    font-weight: 500;
+    color: var(--text-primary);
+    width: 100%;
+}
+
+.dateCell,
+.catCell,
+.cardCell {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.amountHeader {
+    text-align: left !important;
+}
+
+.actionHeader {
+    text-align: center !important;
+}
+
+.amountCell {
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.amountInc {
+    color: var(--accent-success);
+}
+
+.amountExp {
+    color: var(--accent-danger);
+}
+
+.amountSav {
+    color: var(--accent-warning);
+}
+
+.actionCell {
+    text-align: center;
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.actionBtnEdit,
+.actionBtnDelete,
+.iconBtnSuccess,
+.iconBtnDanger {
+    background: transparent;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.actionBtnEdit {
+    color: var(--text-secondary);
+}
+
+.actionBtnEdit:hover {
+    color: var(--accent-primary);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.actionBtnDelete {
+    color: var(--text-secondary);
+}
+
+.actionBtnDelete:hover {
+    color: var(--accent-danger);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.iconBtnSuccess {
+    color: var(--accent-success);
+}
+
+.iconBtnSuccess:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.iconBtnDanger {
+    color: var(--accent-danger);
+}
+
+.iconBtnDanger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}

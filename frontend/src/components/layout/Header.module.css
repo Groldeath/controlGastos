@@ -1,0 +1,101 @@
+.header {
+    height: 70px;
+    background-color: var(--bg-color);
+    /* Same as body to melt naturally */
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.menuBtn {
+    background: transparent;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    margin-left: -8px;
+    /* Offset para alinear opticamente */
+}
+
+.pageTitle {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.centerSection {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.dateSelector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 4px;
+}
+
+.arrowBtn {
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    transition: all var(--transition-fast);
+}
+
+.arrowBtn:hover {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+}
+
+.dateDisplay {
+    min-width: 140px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.rightSection {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: var(--accent-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.addBtn:hover {
+    background: var(--accent-primary-hover);
+    transform: translateY(-1px);
+}

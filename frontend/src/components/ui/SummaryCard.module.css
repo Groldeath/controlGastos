@@ -1,0 +1,85 @@
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.iconWrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.income {
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.iconIncome {
+    color: var(--accent-success);
+}
+
+.expense {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.iconExpense {
+    color: var(--accent-danger);
+}
+
+.balance {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.iconBalance {
+    color: var(--accent-primary);
+}
+
+.savings {
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.iconSavings {
+    color: var(--accent-warning);
+}
+
+.amountContainer {
+    display: flex;
+    align-items: flex-end;
+}
+
+.amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.negativeBalance {
+    color: var(--accent-danger);
+}
