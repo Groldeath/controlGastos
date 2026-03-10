@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import styles from './Movements.module.css';
 
 const Movements: React.FC = () => {
-    const { selectedMonth, selectedYear } = useAppContext();
+    const { selectedMonth, selectedYear, refreshTrigger } = useAppContext();
     const [transactions, setTransactions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -44,7 +44,7 @@ const Movements: React.FC = () => {
 
     useEffect(() => {
         fetchTransactions();
-    }, [selectedMonth, selectedYear, currentPage]);
+    }, [selectedMonth, selectedYear, currentPage, refreshTrigger]);
 
     const handleDelete = async (id: number) => {
         try {
@@ -115,7 +115,7 @@ const Movements: React.FC = () => {
                                             </td>
                                             <td className={styles.descCell}>{trx.descripcion}</td>
                                             <td className={styles.catCell}>{trx.categoria?.nombre || 'General'}</td>
-                                            <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || 'Ninguna') : '-'}</td>
+                                            <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || '-') : '-'}</td>
                                             <td className={`${styles.amountCell} ${trx.tipo === 'gasto' ? styles.amountExp :
                                                 trx.tipo === 'ingreso' ? styles.amountInc :
                                                     (parseFloat(trx.monto) < 0 ? styles.amountExp : styles.amountSav)

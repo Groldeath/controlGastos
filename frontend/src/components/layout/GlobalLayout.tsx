@@ -7,6 +7,7 @@ import { AnimatePresence } from 'framer-motion';
 import CategoryModal from '../modals/CategoryModal';
 import CreditCardModal from '../modals/CreditCardModal';
 import TransactionModal from '../modals/TransactionModal';
+import { useAppContext } from '../../context/AppContext';
 import styles from './GlobalLayout.module.css';
 
 export interface LayoutContextType {
@@ -20,6 +21,8 @@ const GlobalLayout: React.FC = () => {
     const [isCardModalOpen, setCardModalOpen] = useState(false);
     const [isTransactionModalOpen, setTransactionModalOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState<any>(null);
+
+    const { triggerRefresh, refreshAvailableMonths } = useAppContext();
 
     // Manejador del Resize de pantalla para cambiar la presentación On the Fly
     useEffect(() => {
@@ -91,9 +94,8 @@ const GlobalLayout: React.FC = () => {
                     setTransactionToEdit(null);
                 }}
                 onSuccess={() => {
-                    // Mutear window location reload or context refresh if needed.
-                    // React Query is better but for now let's just trigger a reload or simply close.
-                    window.location.reload(); // Simple refresh to show new data
+                    triggerRefresh();
+                    refreshAvailableMonths();
                 }}
                 initialData={transactionToEdit}
             />

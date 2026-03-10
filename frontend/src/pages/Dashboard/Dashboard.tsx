@@ -18,7 +18,7 @@ interface SummaryData {
 }
 
 const Dashboard: React.FC = () => {
-    const { selectedMonth, selectedYear } = useAppContext();
+    const { selectedMonth, selectedYear, refreshTrigger } = useAppContext();
     const [summary, setSummary] = useState<SummaryData>({
         ingresos: 0, gastos: 0, balance: 0, ahorroTotal: 0,
         gastosPorCategoria: [], gastosPorTarjeta: []
@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         fetchDashboardData();
-    }, [selectedMonth, selectedYear]);
+    }, [selectedMonth, selectedYear, refreshTrigger]);
 
     const handleDelete = async (id: number) => {
         try {
@@ -146,7 +146,7 @@ const Dashboard: React.FC = () => {
                                                         </td>
                                                         <td className={styles.descCell}>{trx.descripcion}</td>
                                                         <td className={styles.catCell}>{trx.categoria?.nombre || 'General'}</td>
-                                                        <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || 'Ninguna') : '-'}</td>
+                                                        <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || '-') : '-'}</td>
                                                         <td className={`${styles.amountCell} ${trx.tipo === 'gasto' ? styles.amountExp :
                                                             trx.tipo === 'ingreso' ? styles.amountInc :
                                                                 (parseFloat(trx.monto) < 0 ? styles.amountExp : styles.amountSav)

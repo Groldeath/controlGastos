@@ -15,6 +15,8 @@ interface AppContextType {
     setSelectedYear: (year: number) => void;
     availableMonths: MonthYear[];
     refreshAvailableMonths: () => Promise<void>;
+    refreshTrigger: number;
+    triggerRefresh: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -27,6 +29,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [availableMonths, setAvailableMonths] = useState<MonthYear[]>([{ month: currentMonth, year: currentYear }]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
     const { isAuthenticated } = useAuth();
 
@@ -61,7 +65,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return (
         <AppContext.Provider value={{
             selectedMonth, selectedYear, setSelectedMonth, setSelectedYear,
-            availableMonths, refreshAvailableMonths
+            availableMonths, refreshAvailableMonths,
+            refreshTrigger, triggerRefresh
         }}>
             {children}
         </AppContext.Provider>
