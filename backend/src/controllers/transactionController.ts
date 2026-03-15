@@ -205,7 +205,6 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             WHERE t.tipo = 'gasto' AND t.${whereClause.replace('usuario_id', 'usuario_id')}
             GROUP BY c.id, c.nombre
             ORDER BY total DESC
-            LIMIT 5
         `, queryParams)
 
         const gastosPorCategoria = catRes.rows.map(r => ({ nombre: r.nombre, total: parseFloat(r.total) }))
@@ -218,7 +217,6 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             WHERE t.tipo = 'gasto' AND t.${whereClause.replace('usuario_id', 'usuario_id')}
             GROUP BY tc.id, tc.nombre, tc.dia_corte, tc.dia_pago
             ORDER BY total DESC
-            LIMIT 5
         `, queryParams)
 
         const gastosPorTarjeta = tarjRes.rows.map(r => ({
