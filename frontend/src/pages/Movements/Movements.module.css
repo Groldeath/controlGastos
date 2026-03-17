@@ -2,6 +2,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
+    padding-bottom: 80px; /* Space for FAB on mobile */
+}
+
+@media (min-width: 769px) {
+    .container {
+        padding-bottom: 0;
+    }
 }
 
 .header {

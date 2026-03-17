@@ -28,6 +28,12 @@
     gap: var(--spacing-sm);
 }
 
+@media (max-width: 768px) {
+    .formRow {
+        flex-direction: column;
+    }
+}
+
 .input {
     flex: 1;
     background-color: var(--bg-color);
@@ -59,7 +65,7 @@
 .addBtn {
     background-color: var(--accent-primary);
     color: white;
-    padding: 0 var(--spacing-md);
+    padding: 8px var(--spacing-md);
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
