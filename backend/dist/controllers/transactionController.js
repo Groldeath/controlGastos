@@ -184,19 +184,34 @@ const getSummary = async (req, reply) => {
             WHERE t.tipo = 'gasto' AND t.${whereClause.replace('usuario_id', 'usuario_id')}
             GROUP BY c.id, c.nombre
             ORDER BY total DESC
-            LIMIT 5
         `, queryParams);
         const gastosPorCategoria = catRes.rows.map(r => ({ nombre: r.nombre, total: parseFloat(r.total) }));
-        // Gastos por tarjeta (del mes)
+        // Gastos por tarjeta (usando la ventana de fecha de corte)
+        let tarjWhereClause = 't.tipo = $1 AND t.usuario_id = $2';
+        let tarjQueryParams = ['gasto', user.id];
+        if (month && year) {
+            tarjWhereClause += `
+                AND t.fecha > LEAST(
+                    make_date(($4)::int, ($3)::int, 1) - interval '1 month' + (tc.dia_corte - 1) * interval '1 day',
+                    make_date(($4)::int, ($3)::int, 1) - interval '1 day'
+                )::DATE
+                AND t.fecha <= LEAST(
+                    make_date(($4)::int, ($3)::int, 1) + (tc.dia_corte - 1) * interval '1 day',
+                    make_date(($4)::int, ($3)::int, 1) + interval '1 month - 1 day'
+                )::DATE
+            `;
+            // Push values for $3 and $4
+            tarjQueryParams.push(parseInt(month));
+            tarjQueryParams.push(parseInt(year));
+        }
         const tarjRes = await (0, db_1.query)(`
             SELECT tc.nombre, tc.dia_corte, tc.dia_pago, SUM(t.monto) as total
             FROM transacciones t
             JOIN tarjetas_credito tc ON t.tarjeta_credito_id = tc.id
-            WHERE t.tipo = 'gasto' AND t.${whereClause.replace('usuario_id', 'usuario_id')}
+            WHERE ${tarjWhereClause}
             GROUP BY tc.id, tc.nombre, tc.dia_corte, tc.dia_pago
             ORDER BY total DESC
-            LIMIT 5
-        `, queryParams);
+        `, tarjQueryParams);
         const gastosPorTarjeta = tarjRes.rows.map(r => ({
             nombre: r.nombre,
             total: parseFloat(r.total),
