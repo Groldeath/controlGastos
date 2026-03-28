@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { fetchApi } from '../../services/api';
-import { Wallet, LogIn, AlertCircle, Loader2 } from 'lucide-react';
+import { Wallet, LogIn, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
 import styles from './Login.module.css';
 
 const Login: React.FC = () => {
@@ -155,6 +155,24 @@ const Login: React.FC = () => {
                             )}
                         </button>
                     </form>
+                )}
+                
+                {/* Botón de SSO cuando no está cargando ni estamos en modo Setup */}
+                {!checkingStatus && !isSetup && (
+                    <div className={styles.ssoContainer}>
+                        <div className={styles.divider}>
+                            <span>o accede con</span>
+                        </div>
+                        <button
+                            type="button"
+                            className={styles.ssoBtn}
+                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || ''}/api/auth/oidc/login`}
+                            disabled={loading}
+                        >
+                            <ShieldCheck size={20} />
+                            SSO (Pocket ID)
+                        </button>
+                    </div>
                 )}
             </motion.div>
         </div>

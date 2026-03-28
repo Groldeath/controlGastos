@@ -25,10 +25,12 @@ const users_1 = __importDefault(require("./routes/users"));
 const categories_1 = __importDefault(require("./routes/categories"));
 const creditCards_1 = __importDefault(require("./routes/creditCards"));
 const transactions_1 = __importDefault(require("./routes/transactions"));
+const auth_1 = __importDefault(require("./routes/auth"));
 server.register(users_1.default, { prefix: '/api/users' });
 server.register(categories_1.default, { prefix: '/api/categories' });
 server.register(creditCards_1.default, { prefix: '/api/credit-cards' });
 server.register(transactions_1.default, { prefix: '/api/transactions' });
+server.register(auth_1.default, { prefix: '/api/auth' });
 server.get('/ping', async (request, reply) => {
     return { status: 'ok', time: new Date() };
 });

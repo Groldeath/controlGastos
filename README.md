@@ -21,14 +21,14 @@ Este proyecto está diseñado para desplegarse fácilmente gracias a sus imágen
    ```bash
    cp .env.example .env
    ```
-3. Edita `.env` agregando los valores correspondientes para conectarte a la base de datos. Ejemplo:
-   ```env
-   DATABASE_URL="postgres://usuario:contraseña@ip-de-tu-db:5432/controlGastos"
-   JWT_SECRET="un_secreto_super_seguro_con_suficiente_longitud"
-   PORT=3000
-   ```
-   *(También asegúrate de que el frontend tenga `VITE_API_URL=/api` en su entorno)*
-   
+3. Edita `.env` agregando los valores correspondientes para conectarte a la base de datos y configurar la autenticación. 
+
+   #### Configuración OIDC (Pocket ID) - Opcional
+   Para habilitar Single Sign-On (SSO) con Pocket ID, añade las siguientes variables:
+   - `OIDC_ISSUER_URL`: URL de tu instancia de Pocket ID.
+   - `OIDC_CLIENT_ID` y `OIDC_CLIENT_SECRET`: Generados en tu panel de Pocket ID.
+   - `APP_PUBLIC_URL`: La URL pública donde se aloja esta aplicación (ej. `https://gastos.tu-dominio.com`).
+
 4. **Construir y levantar** la infraestructura:
    ```bash
    docker-compose up -d --build
@@ -42,6 +42,16 @@ El archivo de orquestación levantará dos servicios intercomunicados pero aisla
 2. **`frontend-service` (Puerto 80)**: Un servidor web Nginx puro e inmutable con el Build de React. Servirá los Assets estáticos sin saturar las solicitudes de tu API con un ruteo SPA (Single Page Application) en la raíz `/`.
 
 Ambos heredan tus configuraciones desde el `.env` central ubicado en la misma carpeta.
+
+---
+
+## 🔒 Autenticación Híbrida (OIDC + Local)
+
+El sistema soporta un esquema de autenticación flexible:
+- **Login Local:** Basado en correo y contraseña con hash Argon2/Bcrypt.
+- **SSO con Pocket ID:** Integración nativa vía OpenID Connect.
+- **Account Linking:** Si inicias sesión vía SSO con un correo que ya existe en la base de datos local, el sistema vinculará ambas cuentas automáticamente sin pérdida de datos.
+- **Auto-Provisioning:** Los nuevos usuarios autenticados vía SSO que no existan en la base de datos serán creados automáticamente con el rol de `usuario`.
 
 ---
 

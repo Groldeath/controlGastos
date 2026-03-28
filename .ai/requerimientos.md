@@ -12,10 +12,13 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
 - **RU0.2: Registro de Administrador:** En el primer arranque, se debe mostrar un formulario exclusivo para crear el primer usuario con privilegios de Administrador.
 
 ### R1. Control de Acceso y Usuarios
-- **RU1.1:** El sistema debe contar con un proceso de autenticación seguro.
-- **RU1.2:** Gestión de usuarios por parte del Administrador.
-- **RU1.3:** Sesiones persistentes seguras.
-- **RU1.4: Aislamiento de Datos:** Cada usuario solo tendrá acceso a sus propios movimientos, categorías y tarjetas. Los datos están estrictamente vinculados al ID del usuario.
+- **RU1.1:** El sistema debe contar con un proceso de autenticación seguro (Híbrido).
+- **RU1.2: Autenticación OIDC:** Soporte para Single Sign-On mediante proveedores externos (ej. Pocket ID).
+- **RU1.3: Vinculación de Cuentas:** Capacidad de enlazar sesiones OIDC con correos electrónicos ya registrados en el sistema.
+- **RU1.4: Auto-Provisioning:** Creación automática de cuentas para nuevos usuarios autenticados vía OIDC, asignando el rol de `usuario` por defecto y capturando el nombre desde los claims del proveedor (`given_name`, `name`, etc.).
+- **RU1.5:** Gestión de usuarios por parte del Administrador.
+- **RU1.6:** Sesiones persistentes seguras (JWT).
+- **RU1.7: Aislamiento de Datos:** Cada usuario solo tendrá acceso a sus propios movimientos, categorías y tarjetas. Los datos están estrictamente vinculados al ID del usuario.
 
 ### R2. Gestión de Gastos e Ingresos (Movimientos)
 - **RU2.1:** Registro de transacciones (monto, descripción, fecha, categoría).
