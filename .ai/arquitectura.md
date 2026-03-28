@@ -43,7 +43,9 @@ Este documento describe la arquitectura técnica y estructural de la aplicación
 ### Backend
 - **Framework:** Fastify (Node.js + TypeScript).
 - **Base de Datos:** PostgreSQL (Relacional).
-- **Seguridad:** JWT (JSON Web Tokens) + Hashing de contraseñas (Argon2/Bcrypt).
+- **Seguridad:** 
+    - **Híbrida:** Autenticación local (JWT + Argon2/Bcrypt) y **OIDC (OpenID Connect)** para integración con proveedores como Pocket ID.
+    - **Librería:** `openid-client` para la gestión de flujos SSO.
 - **API:** RESTful con documentación automática de esquemas.
 
 ### Infraestructura
@@ -52,16 +54,11 @@ Este documento describe la arquitectura técnica y estructural de la aplicación
 - **Contenedores:** 
     - `backend-service`: Fastify Node.js (Alpine) multi-stage dockerfile.
     - `frontend-service`: Servidor SPA Nginx Alpine inmutable (con conf por defecto de React Router).
-- **Configuración:** Uso obligatorio de `.env.example` y un `docker-compose.yml` consolidado que define topología y límites agresivos de recursos (CPU/RAM).
-- **Repositorio:** Gitea (Privado).
-- **CI/CD:** Gitea Actions y Gitea Package Registry (para almacenamiento de imágenes de contenedores).
-- **Entorno de Ejecución:** Proxmox LXC.
+- **Configuración:** Uso obligatorio de `.env.example` para gestionar credenciales locales y secretos OIDC (Issuer, Client ID, Secret).
 
 ## 3. Modelo de Datos (Borrador)
-- **Usuarios:** ID, NombreUsuario, Email, HashContraseña, Rol (admin/usuario), FechaCreacion.
-- **Transacciones:** ID, UsuarioID, Tipo (ingreso/gasto), Monto, CategoriaID, TarjetaCreditoID (nulo si no aplica), Descripcion, Fecha.
-- **Categorias:** ID, UsuarioID, Nombre. -- Vinculado a usuario para aislamiento.
-- **TarjetasCredito:** ID, UsuarioID, Nombre, LimiteCredito, DiaCorte, DiaPago.
+- **Usuarios:** ID, NombreUsuario, Email, HashContraseña, **oidc_id (unique, null if local)**, Rol (admin/usuario), FechaCreacion.
+- **Transacciones:** ID, UsuarioID, Tipo (ingreso/gasto/ahorro), Monto, CategoriaID, TarjetaCreditoID (nulo si no aplica), Descripcion, Fecha.
 
 ## 4. Estándares de Desarrollo
 - **Commits:** Seguir estrictamente el estándar de *Conventional Commits*.
@@ -69,5 +66,5 @@ Este documento describe la arquitectura técnica y estructural de la aplicación
 - **Idioma del Proyecto:** Comunicación y comentarios en español.
 
 ---
-**Estado:** V1 Desarrollo Completado (Infraestructura Dockerizada)
-**Última Actualización:** 2026-03-09
+**Estado:** V1.1 Autenticación Híbrida OIDC Implementada.
+**Última Actualización:** 2026-03-27
