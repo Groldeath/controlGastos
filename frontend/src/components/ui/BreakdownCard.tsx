@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useAppContext } from '../../context/AppContext';
 import styles from './BreakdownCard.module.css';
 
 interface BreakdownItem {
@@ -18,6 +19,8 @@ interface BreakdownCardProps {
 }
 
 const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay = 0, isCardData = false }) => {
+    const { selectedMonth } = useAppContext();
+    
     // Para categorías, queremos que la barra represente el porcentaje respecto a TODOS los gastos de la lista
     const totalSum = data.length > 0 ? data.reduce((acc, curr) => acc + curr.total, 0) : 1;
 
@@ -47,12 +50,17 @@ const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay 
                             // Formatear fechas para tarjetas (si existen)
                             let displayDates = null;
                             if (isCardData && item.dia_corte && item.dia_pago) {
-                                const currentMonth = new Date().getMonth();
-                                const nextMonth = (currentMonth + 1) % 12;
+                                // selectedMonth is 1-12
+                                const currentMonthIdx = selectedMonth - 1; // 0-11
+                                const nextMonthIdx = (currentMonthIdx + 1) % 12;
 
                                 const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-                                const mesCorteStr = meses[currentMonth];
-                                const mesPagoStr = meses[nextMonth];
+                                
+                                const mesCorteStr = meses[currentMonthIdx];
+                                // Si el día de pago es mayor al de corte, cae en el mismo mes.
+                                // Si es menor, cae en el siguiente mes.
+                                const mesPagoIdx = (item.dia_pago > item.dia_corte) ? currentMonthIdx : nextMonthIdx;
+                                const mesPagoStr = meses[mesPagoIdx];
 
                                 displayDates = `(${String(item.dia_corte).padStart(2, '0')}/${mesCorteStr} | ${String(item.dia_pago).padStart(2, '0')}/${mesPagoStr})`;
                             }
