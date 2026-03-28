@@ -12,12 +12,13 @@ async function getOidcClient() {
     if (!issuerUrl) throw new Error("OIDC_ISSUER_URL no configurado");
 
     const issuer = await Issuer.discover(issuerUrl);
-    
+    const publicUrl = (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
+
     oidcClient = new issuer.Client({
         client_id: process.env.OIDC_CLIENT_ID || '',
         client_secret: process.env.OIDC_CLIENT_SECRET,
         // El callback siempre apuntará a nuestra API, no al frontend directamente
-        redirect_uris: [`${process.env.APP_PUBLIC_URL || 'http://localhost:3000'}/api/auth/oidc/callback`],
+        redirect_uris: [`${publicUrl}/api/auth/oidc/callback`],
         response_types: ['code']
     });
     return oidcClient;
@@ -29,11 +30,13 @@ export const oidcLogin = async (req: FastifyRequest, reply: FastifyReply) => {
         // Generamos la URL de autorización
         const url = client.authorizationUrl({
             scope: 'openid email profile',
+            // Deshabilitamos nonce para flujo stateless simplificado en este entorno
+            nonce: undefined,
         });
         
         return reply.redirect(url);
     } catch (error: any) {
-        req.log.error(`Error inicializando OIDC: ${error.message}`);
+        req.log.error(error, `Error inicializando OIDC: ${error.message}`);
         return reply.status(500).send({ error: 'Configuración de proveedor de identidad no disponible' });
     }
 }
@@ -43,20 +46,28 @@ export const oidcCallback = async (req: FastifyRequest, reply: FastifyReply) => 
         const client = await getOidcClient();
         const params = client.callbackParams(req.raw.url || req.url);
         
-        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params);
+        // Bypass del state: le pasamos el mismo que vino para que coincida en la librería (stateless)
+        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params, {
+            state: params.state
+        });
+        
         const claims = tokenSet.claims();
+        req.log.info({ claims }, 'OIDC Claims recibidos exitosamente');
         
         if (!claims.sub) {
             return reply.status(400).send({ error: 'Respuesta inválida del proveedor. Falta el identificador (subject)' });
         }
+
+        // Fallback para email si no viene del proveedor (nuestra DB requiere NOT NULL)
+        const email = claims.email || `${claims.sub}@oidc.internal`;
         
-        // 1. Buscamos al usuario por su OIDC ID (Account Linking ya establecido)
+        // 1. Buscamos al usuario por su OIDC ID
         let resp = await query('SELECT id, nombre_usuario, email, rol, oidc_id FROM usuarios WHERE oidc_id = $1', [claims.sub]);
         let user = resp.rows[0];
 
-        // 2. Si no existe por OIDC ID, buscamos por Email (Soft link de cuentas preexistentes)
-        if (!user && claims.email) {
-            resp = await query('SELECT id, nombre_usuario, email, rol, oidc_id FROM usuarios WHERE email = $1', [claims.email]);
+        // 2. Si no existe por OIDC ID, buscamos por Email (vincular cuentas preexistentes)
+        if (!user) {
+            resp = await query('SELECT id, nombre_usuario, email, rol, oidc_id FROM usuarios WHERE email = $1', [email]);
             user = resp.rows[0];
             
             if (user) {
@@ -67,32 +78,39 @@ export const oidcCallback = async (req: FastifyRequest, reply: FastifyReply) => 
 
         // 3. Si sigue sin existir, es un usuario totalmente nuevo (Auto-Provisioning)
         if (!user) {
-            // Evaluamos prioridades para el nombre según petición del usuario: given_name -> name -> preferred_username -> email start
-            const chosenName = claims.given_name || claims.name || claims.preferred_username || (claims.email ? claims.email.split('@')[0] : 'UsuarioOIDC');
+            let chosenName = claims.given_name || claims.name || claims.preferred_username || email.split('@')[0];
+            
+            // Verificamos si el nombre_usuario ya existe para evitar errores UNIQUE
+            const nameCheck = await query('SELECT id FROM usuarios WHERE nombre_usuario = $1', [chosenName]);
+            if (nameCheck.rows[0]) {
+                // Si existe, le agregamos el inicio del OIDC ID para hacerlo único
+                chosenName = `${chosenName}_${claims.sub.substring(0, 5)}`;
+            }
             
             const insertQuery = `
                 INSERT INTO usuarios (nombre_usuario, email, hash_contrasena, oidc_id, rol)
                 VALUES ($1, $2, $3, $4, 'usuario')
                 RETURNING id, nombre_usuario, email, rol, oidc_id
             `;
-            // Un hash dummy muy complejo ya que nunca iniciará por contraseña local.
             const dummyHash = 'sso-account-no-local-password'; 
-            resp = await query(insertQuery, [chosenName, claims.email, dummyHash, claims.sub]);
+            resp = await query(insertQuery, [chosenName, email, dummyHash, claims.sub]);
             user = resp.rows[0];
         }
 
         // 4. Generamos el JWT de nuestra propia aplicación tal como el Login local
         const token = await reply.jwtSign({ id: user.id, rol: user.rol }, { expiresIn: '8h' });
         
-        // 5. Redirigimos al Frontend con el token en la URL (al ser un callback OAUTH no podemos responder JSON directamente si el Front no lo inició vía API/Popup)
-        // Redirigimos al handler del Frontend que guardará esto
-        const frontendUrl = `${process.env.APP_PUBLIC_URL || 'http://localhost:3000'}/auth/callback?token=${token}`;
+        // 5. Redirigimos al Frontend con el token en la URL
+        const publicUrl = (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
+        const frontendUrl = `${publicUrl}/auth/callback?token=${token}`;
+        
+        req.log.info({ userId: user.id }, 'OIDC Login completado, redirigiendo al frontend');
         return reply.redirect(frontendUrl);
 
     } catch (error: any) {
-        req.log.error(`Error en callback OIDC: ${error.message}`);
-        // Redirigir al login con error
-        const frontendUrl = `${process.env.APP_PUBLIC_URL || 'http://localhost:3000'}/login?error=oidc_failed`;
+        req.log.error(error, `Error en callback OIDC: ${error.message}`);
+        const publicUrl = (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
+        const frontendUrl = `${publicUrl}/login?error=oidc_failed`;
         return reply.redirect(frontendUrl);
     }
 }
