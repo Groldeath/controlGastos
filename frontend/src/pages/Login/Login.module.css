@@ -209,3 +209,60 @@
         transform: rotate(360deg);
     }
 }
+
+/* OIDC SSO Styles */
+.ssoContainer {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.divider span {
+    padding: 0 var(--spacing-sm);
+}
+
+.ssoBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.ssoBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+}
+
+.ssoBtn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.ssoBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
