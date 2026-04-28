@@ -36,7 +36,7 @@
     flex-direction: column;
     pointer-events: auto;
     /* Re-enable clicks on the modal itself */
-    overflow: hidden;
+    overflow: visible;
 }
 
 .header {
@@ -72,6 +72,6 @@
 
 .content {
     padding: var(--spacing-lg);
-    overflow-y: auto;
+    overflow-y: visible;
     flex: 1;
 }

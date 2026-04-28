@@ -8,7 +8,7 @@ interface MonthYearPickerProps {
     onSelect: (month: number, year: number) => void;
 }
 
-const MONTHS = ['ENER', 'FEBR', 'MARZ', 'ABRL', 'MAY', 'JUN', 'JUL', 'AGOS', 'SEPT', 'OCT', 'NOV', 'DEC'];
+const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ selectedMonth, selectedYear, onSelect }) => {
     const [viewYear, setViewYear] = useState(selectedYear);
