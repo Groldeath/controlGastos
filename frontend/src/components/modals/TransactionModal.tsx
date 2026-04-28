@@ -3,6 +3,7 @@ import Modal from '../ui/Modal';
 import { fetchApi } from '../../services/api';
 import { Loader2, Send } from 'lucide-react';
 import styles from './TransactionModal.module.css';
+import Select from '../ui/Select';
 
 interface Category {
     id: number;
@@ -211,46 +212,42 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                         {tipo === 'gasto' && (
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Categoría</label>
-                                <select
-                                    className={styles.select}
+                                <Select
                                     value={categoriaId}
-                                    onChange={(e) => setCategoriaId(e.target.value)}
-                                >
-                                    <option value="">Sin Categoría</option>
-                                    {categorias.map(c => (
-                                        <option key={c.id} value={c.id}>{c.nombre}</option>
-                                    ))}
-                                </select>
+                                    onChange={setCategoriaId}
+                                    options={[
+                                        { value: '', label: 'Sin Categoría' },
+                                        ...categorias.map(c => ({ value: c.id.toString(), label: c.nombre }))
+                                    ]}
+                                />
                             </div>
                         )}
 
                         {tipo === 'gasto' && (
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Tarjeta de Crédito</label>
-                                <select
-                                    className={styles.select}
+                                <Select
                                     value={tarjetaId}
-                                    onChange={(e) => setTarjetaId(e.target.value)}
-                                >
-                                    <option value="">Ninguna</option>
-                                    {tarjetas.map(t => (
-                                        <option key={t.id} value={t.id}>{t.nombre}</option>
-                                    ))}
-                                </select>
+                                    onChange={setTarjetaId}
+                                    options={[
+                                        { value: '', label: 'Ninguna' },
+                                        ...tarjetas.map(t => ({ value: t.id.toString(), label: t.nombre }))
+                                    ]}
+                                />
                             </div>
                         )}
 
                         {tipo === 'ahorro' && (
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Acción de Ahorro</label>
-                                <select
-                                    className={styles.select}
+                                <Select
                                     value={ahorroAction}
-                                    onChange={(e) => setAhorroAction(e.target.value as 'depositar' | 'retirar')}
-                                >
-                                    <option value="depositar">Depositar</option>
-                                    <option value="retirar">Retirar</option>
-                                </select>
+                                    onChange={(val) => setAhorroAction(val as 'depositar' | 'retirar')}
+                                    options={[
+                                        { value: 'depositar', label: 'Depositar' },
+                                        { value: 'retirar', label: 'Retirar' }
+                                    ]}
+                                />
                             </div>
                         )}
 

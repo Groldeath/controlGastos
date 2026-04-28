@@ -41,6 +41,12 @@
     justify-content: center;
 }
 
+.dateSelectorContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
 .dateSelector {
     display: flex;
     align-items: center;
@@ -49,6 +55,8 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-full);
     padding: 4px;
+    position: relative;
+    z-index: 95;
 }
 
 .arrowBtn {
@@ -67,12 +75,31 @@
     color: var(--text-primary);
 }
 
-.dateDisplay {
+.dateDisplayBtn {
     min-width: 140px;
     text-align: center;
     font-weight: 600;
     font-size: 0.95rem;
     color: var(--text-primary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    transition: background var(--transition-fast);
+}
+
+.dateDisplayBtn:hover {
+    background: var(--bg-surface-hover);
+}
+
+.pickerOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
 }
 
 .rightSection {
