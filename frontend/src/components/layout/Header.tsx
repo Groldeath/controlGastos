@@ -14,7 +14,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick, isMobile, openTransactionModal }) => {
-    const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear, availableMonths } = useAppContext();
+    const { selectedMonth, selectedYear, setSelectedMonth, setSelectedYear } = useAppContext();
     const location = useLocation();
 
     const getPageTitle = () => {
