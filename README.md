@@ -1,10 +1,8 @@
 # Control de Gastos - Sistema Financiero Personal
 
-Una solución web completa para el seguimiento y control de tus finanzas personales y tarjetas de crédito, lista para ser desplegada en entornos self-hosted y contenedores LXC en Proxmox.
-
 ---
 
-## 🚀 Despliegue Rápido (Docker Compose)
+## Despliegue Rápido (Docker Compose)
 
 Ejecuta estos comandos para preparar el entorno:
 
