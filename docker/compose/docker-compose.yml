@@ -1,0 +1,38 @@
+services:
+  backend:
+    image: gitea.servespinoza.xyz/luismario/controlgastos-backend:latest
+    container_name: cg_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+    networks:
+      - cg_network
+
+  frontend:
+    image: gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest
+    container_name: cg_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - cg_network
+
+networks:
+  cg_network:
+    driver: bridge

@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 
 // Cargar .env de la raíz en desarrollo local
-dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 
 const server = Fastify({
     logger: true

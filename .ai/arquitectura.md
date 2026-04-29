@@ -7,8 +7,8 @@ Este documento describe la arquitectura técnica y estructural de la aplicación
 ```text
 /
 ├── .ai/          # Inteligencia del proyecto (Arquitectura y Requerimientos)
-├── backend/      # Lógica de servidor y conexión a base de datos
-└── frontend/     # Interfaz de usuario y consumo de APIs
+├── src/backend/      # Lógica de servidor y conexión a base de datos
+└── src/frontend/     # Interfaz de usuario y consumo de APIs
 ```
 
 ## 2. Stack Tecnológico
