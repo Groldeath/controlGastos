@@ -22,16 +22,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Convertir a minúsculas el nombre de usuario
+        run: |
+          echo "ACTOR_LC=${ACTOR,,}" >>${GITHUB_ENV}
+        env:
+          ACTOR: '${{ github.actor }}'
+
       - name: Build Backend Container Image
         uses: docker/build-push-action@v5
         with:
           context: ./src/backend
           push: true
-          tags: ghcr.io/${{ github.actor }}/control-gastos-backend:latest
+          tags: ghcr.io/${{ env.ACTOR_LC }}/control-gastos-backend:latest
 
       - name: Build Frontend Container Image
         uses: docker/build-push-action@v5
         with:
           context: ./src/frontend
           push: true
-          tags: ghcr.io/${{ github.actor }}/control-gastos-frontend:latest
+          tags: ghcr.io/${{ env.ACTOR_LC }}/control-gastos-frontend:latest
