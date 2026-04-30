@@ -1,6 +1,6 @@
 services:
   backend:
-    image: gitea.servespinoza.xyz/luismario/controlgastos-backend:latest
+    image: ghcr.io/groldeath/control-gastos-backend:latest
     container_name: cg_backend
     restart: unless-stopped
     ports:
@@ -16,7 +16,7 @@ services:
       - cg_network
 
   frontend:
-    image: gitea.servespinoza.xyz/luismario/controlgastos-frontend:latest
+    image: ghcr.io/groldeath/control-gastos-frontend:latest
     container_name: cg_frontend
     restart: unless-stopped
     ports:
