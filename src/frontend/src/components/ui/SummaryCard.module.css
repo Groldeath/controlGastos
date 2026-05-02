@@ -56,6 +56,10 @@
     background: rgba(59, 130, 246, 0.15);
 }
 
+.neto {
+    background: rgba(59, 130, 246, 0.15);
+}
+
 .iconBalance {
     color: var(--accent-primary);
 }

@@ -293,3 +293,182 @@
 .iconBtnDanger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+.budgetsSection {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.budgetGrid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+@media (min-width: 640px) {
+    .budgetGrid {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 280px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .budgetGrid {
+        grid-template-columns: repeat(3, 1fr);
+        max-height: 260px;
+    }
+}
+
+.budgetCard {
+    padding: var(--spacing-md);
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    transition: border-color var(--transition-fast);
+}
+
+.budgetCard:hover {
+    border-color: var(--accent-primary);
+}
+
+.budgetCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.budgetCardName {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.budgetCardDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.budgetCardAmounts {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+.budgetCardSpent {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.budgetProgressTrack {
+    height: 6px;
+    background-color: var(--bg-surface-hover);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.3rem;
+}
+
+.budgetProgressBar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.budgetProgressFooter {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+.budgetPercentage {
+    font-weight: 600;
+}
+
+.balanceCard {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast);
+}
+
+.balanceCard:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.balanceCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.balanceCardTitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.balanceCardIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: rgba(59, 130, 246, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-primary);
+}
+
+.balanceRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+}
+
+.balanceItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.balanceLabel {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.balanceAmount {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.balanceNegative {
+    color: var(--accent-danger);
+}
+
+.balanceDivider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--border-color);
+}

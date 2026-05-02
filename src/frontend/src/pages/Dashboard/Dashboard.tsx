@@ -3,8 +3,9 @@ import { useAppContext } from '../../context/AppContext';
 import { fetchApi } from '../../services/api';
 import SummaryCard from '../../components/ui/SummaryCard';
 import BreakdownCard from '../../components/ui/BreakdownCard';
-import { ArrowRight, Loader2, Tags, CreditCard, ArrowDownRight, ArrowUpRight, PiggyBank, Edit2, Trash2, Check, X } from 'lucide-react';
+import { ArrowRight, Loader2, Tags, CreditCard, ArrowDownRight, ArrowUpRight, PiggyBank, Edit2, Trash2, Check, X, PieChart } from 'lucide-react';
 import { Link, useOutletContext } from 'react-router-dom';
+import { BudgetService, type Budget } from '../../services/budgetService';
 import styles from './Dashboard.module.css';
 import { motion } from 'framer-motion';
 
@@ -12,6 +13,7 @@ interface SummaryData {
     ingresos: number;
     gastos: number;
     balance: number;
+    balanceNetoReal: number;
     ahorroTotal: number;
     gastosPorCategoria: { nombre: string; total: number }[];
     gastosPorTarjeta: { nombre: string; total: number; dia_corte?: number; dia_pago?: number }[];
@@ -20,7 +22,7 @@ interface SummaryData {
 const Dashboard: React.FC = () => {
     const { selectedMonth, selectedYear, refreshTrigger } = useAppContext();
     const [summary, setSummary] = useState<SummaryData>({
-        ingresos: 0, gastos: 0, balance: 0, ahorroTotal: 0,
+        ingresos: 0, gastos: 0, balance: 0, balanceNetoReal: 0, ahorroTotal: 0,
         gastosPorCategoria: [], gastosPorTarjeta: []
     });
 
@@ -29,6 +31,7 @@ const Dashboard: React.FC = () => {
     const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
 
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+    const [budgets, setBudgets] = useState<Budget[]>([]);
 
     const { openTransactionModal } = useOutletContext<any>();
 
@@ -42,6 +45,10 @@ const Dashboard: React.FC = () => {
             // Fetch recent transactions (first page, limit 5)
             const trxRes = await fetchApi(`/api/transactions?month=${selectedMonth}&year=${selectedYear}&limit=5`);
             setRecentTransactions(trxRes.data || []);
+
+            // Fetch budgets
+            const budgetsRes = await BudgetService.getAll(selectedMonth, selectedYear);
+            setBudgets(budgetsRes);
         } catch (err) {
             console.error("Error cargando dashboard:", err);
         } finally {
@@ -74,11 +81,88 @@ const Dashboard: React.FC = () => {
             ) : (
                 <>
                     <div className={styles.grid}>
-                        <SummaryCard title="Balance Restante" amount={summary.balance} type="balance" delay={1} />
+                        <motion.div
+                            className={styles.balanceCard}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
+                            whileHover={{ y: -4 }}
+                        >
+                            <div className={styles.balanceCardHeader}>
+                                <span className={styles.balanceCardTitle}>Balance</span>
+                                <div className={styles.balanceCardIcon}>
+                                    <PieChart size={24} />
+                                </div>
+                            </div>
+                            <div className={styles.balanceRow}>
+                                <div className={styles.balanceItem}>
+                                    <span className={styles.balanceLabel}>Neto</span>
+                                    <span className={`${styles.balanceAmount} ${summary.balanceNetoReal < 0 ? styles.balanceNegative : ''}`}>
+                                        ${Math.abs(summary.balanceNetoReal).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+                                <div className={styles.balanceDivider} />
+                                <div className={styles.balanceItem}>
+                                    <span className={styles.balanceLabel}>Restante</span>
+                                    <span className={`${styles.balanceAmount} ${summary.balance < 0 ? styles.balanceNegative : ''}`}>
+                                        ${Math.abs(summary.balance).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+                            </div>
+                        </motion.div>
                         <SummaryCard title="Ingresos Totales" amount={summary.ingresos} type="income" delay={2} />
                         <SummaryCard title="Gastos Totales" amount={summary.gastos} type="expense" delay={3} />
                         <SummaryCard title="Ahorro Total" amount={summary.ahorroTotal} type="savings" delay={4} />
                     </div>
+
+                    {budgets.length > 0 && (
+                        <div className={styles.budgetsSection}>
+                            <div className={styles.recentHeader}>
+                                <h2 className={styles.sectionTitle}>Presupuestos</h2>
+                                <Link to="/budgets" className={styles.viewAllBtn}>
+                                    Ver Todos
+                                    <ArrowRight size={16} />
+                                </Link>
+                            </div>
+                            <div className={styles.budgetGrid}>
+                                {budgets.map((b) => {
+                                    const totalGastado = b.total_gastado || 0;
+                                    const limit = parseFloat(b.monto_limite as any);
+                                    const percentage = limit > 0 ? Math.min((totalGastado / limit) * 100, 100) : 0;
+                                    const progressColor = percentage >= 90 ? '#ef4444' : percentage >= 75 ? '#f59e0b' : '#10b981';
+                                    return (
+                                        <div key={b.id} className={styles.budgetCard}>
+                                            <div className={styles.budgetCardHeader}>
+                                            <div className={styles.budgetCardName}>
+                                                {b.nombre}
+                                            </div>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                    ${limit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                                </span>
+                                            </div>
+                                            <div className={styles.budgetCardAmounts}>
+                                                <span>Gastado: <span className={styles.budgetCardSpent}>
+                                                    ${totalGastado.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                                </span></span>
+                                                <span>Restante: ${Math.max(0, limit - totalGastado).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className={styles.budgetProgressTrack}>
+                                                <div
+                                                    className={styles.budgetProgressBar}
+                                                    style={{ width: `${percentage}%`, backgroundColor: progressColor }}
+                                                />
+                                            </div>
+                                            <div className={styles.budgetProgressFooter}>
+                                                <span className={styles.budgetPercentage} style={{ color: progressColor }}>
+                                                    {percentage.toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <div className={styles.breakdownGrid}>
                         <BreakdownCard

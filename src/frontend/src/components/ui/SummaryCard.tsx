@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
+import { TrendingUp, TrendingDown, PieChart, PiggyBank, Wallet } from 'lucide-react';
 import styles from './SummaryCard.module.css';
 
 interface SummaryCardProps {
     title: string;
     amount: number;
-    type: 'income' | 'expense' | 'balance' | 'savings';
+    type: 'income' | 'expense' | 'balance' | 'savings' | 'neto';
     delay?: number;
 }
 
@@ -17,6 +17,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type, delay = 
             case 'income': return <TrendingUp size={24} className={styles.iconIncome} />;
             case 'expense': return <TrendingDown size={24} className={styles.iconExpense} />;
             case 'balance': return <Wallet size={24} className={styles.iconBalance} />;
+            case 'neto': return <PieChart size={24} className={styles.iconBalance} />;
             case 'savings': return <PiggyBank size={24} className={styles.iconSavings} />;
         }
     };
@@ -42,7 +43,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type, delay = 
             </div>
 
             <div className={styles.amountContainer}>
-                <span className={`${styles.amount} ${(type === 'balance' || type === 'savings') && amount < 0 ? styles.negativeBalance : ''}`}>
+                <span className={`${styles.amount} ${(type === 'balance' || type === 'neto' || type === 'savings') && amount < 0 ? styles.negativeBalance : ''}`}>
                     {formattedAmount}
                 </span>
             </div>

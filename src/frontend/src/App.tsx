@@ -9,6 +9,7 @@ import OidcCallback from './pages/Login/OidcCallback';
 import Dashboard from './pages/Dashboard/Dashboard';
 
 import Movements from './pages/Movements/Movements';
+import Budgets from './pages/Budgets/Budgets';
 import Users from './pages/Users/Users';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             {/* Shell Application Layout Wrapper */}
             <Route element={<GlobalLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/budgets" element={<Budgets />} />
               <Route path="/movements" element={<Movements />} />
               <Route path="/users" element={<Users />} />
             </Route>

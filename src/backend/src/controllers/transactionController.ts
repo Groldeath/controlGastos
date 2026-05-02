@@ -3,7 +3,7 @@ import { query } from '../db'
 
 export const createTransaction = async (req: FastifyRequest, reply: FastifyReply) => {
     const user = req.user as { id: number }
-    const { tipo, monto, categoria_id, tarjeta_credito_id, descripcion, fecha } = req.body as any
+    const { tipo, monto, categoria_id, tarjeta_credito_id, presupuesto_id, descripcion, fecha } = req.body as any
 
     if (!tipo || !monto || !fecha || !descripcion) {
         return reply.status(400).send({ error: 'Campos obligatorios faltantes (tipo, monto, fecha, descripcion)' })
@@ -15,17 +15,19 @@ export const createTransaction = async (req: FastifyRequest, reply: FastifyReply
 
     let finalCategoriaId = categoria_id || null;
     let finalTarjetaId = tarjeta_credito_id || null;
+    let finalPresupuestoId = presupuesto_id || null;
 
     if (tipo !== 'gasto') {
         finalCategoriaId = null;
         finalTarjetaId = null;
+        finalPresupuestoId = null;
     }
 
     try {
         const res = await query(
-            `INSERT INTO transacciones (usuario_id, tipo, monto, categoria_id, tarjeta_credito_id, descripcion, fecha) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-            [user.id, tipo, monto, finalCategoriaId, finalTarjetaId, descripcion, fecha]
+            `INSERT INTO transacciones (usuario_id, tipo, monto, categoria_id, tarjeta_credito_id, presupuesto_id, descripcion, fecha) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [user.id, tipo, monto, finalCategoriaId, finalTarjetaId, finalPresupuestoId, descripcion, fecha]
         )
         return reply.status(201).send(res.rows[0])
     } catch (e: any) {
@@ -56,10 +58,12 @@ export const getTransactions = async (req: FastifyRequest, reply: FastifyReply) 
         SELECT 
             t.id, t.tipo, t.monto, t.descripcion, t.fecha, t.fecha_creacion,
             c.id as categoria_id, c.nombre as categoria_nombre,
-            tc.id as tarjeta_id, tc.nombre as tarjeta_nombre
+            tc.id as tarjeta_id, tc.nombre as tarjeta_nombre,
+            p.id as presupuesto_id, p.nombre as presupuesto_nombre
         FROM transacciones t
         LEFT JOIN categorias c ON t.categoria_id = c.id
         LEFT JOIN tarjetas_credito tc ON t.tarjeta_credito_id = tc.id
+        LEFT JOIN presupuestos p ON t.presupuesto_id = p.id
         WHERE ${whereClause}
         ORDER BY t.fecha DESC, t.id DESC
         ${limitQuery}
@@ -78,7 +82,8 @@ export const getTransactions = async (req: FastifyRequest, reply: FastifyReply) 
             fecha: row.fecha,
             fecha_creacion: row.fecha_creacion,
             categoria: row.categoria_id ? { id: row.categoria_id, nombre: row.categoria_nombre } : null,
-            tarjeta: row.tarjeta_id ? { id: row.tarjeta_id, nombre: row.tarjeta_nombre } : null
+            tarjeta: row.tarjeta_id ? { id: row.tarjeta_id, nombre: row.tarjeta_nombre } : null,
+            presupuesto: row.presupuesto_id ? { id: row.presupuesto_id, nombre: row.presupuesto_nombre } : null
         }))
 
         return {
@@ -95,7 +100,7 @@ export const getTransactions = async (req: FastifyRequest, reply: FastifyReply) 
 export const updateTransaction = async (req: FastifyRequest, reply: FastifyReply) => {
     const user = req.user as { id: number }
     const { id } = req.params as { id: string }
-    const { tipo, monto, categoria_id, tarjeta_credito_id, descripcion, fecha } = req.body as any
+    const { tipo, monto, categoria_id, tarjeta_credito_id, presupuesto_id, descripcion, fecha } = req.body as any
 
     if (!tipo || !monto || !fecha || !descripcion) {
         return reply.status(400).send({ error: 'Campos obligatorios faltantes (tipo, monto, fecha, descripcion)' })
@@ -107,14 +112,15 @@ export const updateTransaction = async (req: FastifyRequest, reply: FastifyReply
 
     let finalCategoriaId = tipo === 'gasto' && categoria_id ? parseInt(categoria_id) : null;
     let finalTarjetaId = tipo === 'gasto' && tarjeta_credito_id ? parseInt(tarjeta_credito_id) : null;
+    let finalPresupuestoId = tipo === 'gasto' && presupuesto_id ? parseInt(presupuesto_id) : null;
 
     try {
         const updateQuery = `
             UPDATE transacciones 
-            SET tipo = $1, monto = $2, categoria_id = $3, tarjeta_credito_id = $4, descripcion = $5, fecha = $6
-            WHERE id = $7 AND usuario_id = $8 RETURNING *
+            SET tipo = $1, monto = $2, categoria_id = $3, tarjeta_credito_id = $4, presupuesto_id = $5, descripcion = $6, fecha = $7
+            WHERE id = $8 AND usuario_id = $9 RETURNING *
         `
-        const res = await query(updateQuery, [tipo, monto, finalCategoriaId, finalTarjetaId, descripcion, fecha, id, user.id])
+        const res = await query(updateQuery, [tipo, monto, finalCategoriaId, finalTarjetaId, finalPresupuestoId, descripcion, fecha, id, user.id])
 
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Transacción no encontrada o no pertenece al usuario' })
 
@@ -188,6 +194,27 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             if (row.tipo === 'gasto') gastos = parseFloat(row.total)
         })
 
+        // Obtener límite total de presupuestos del mes y gastos no presupuestados
+        let sumaPresupuestos = 0;
+        let gastosSinPresupuesto = 0;
+
+        if (month && year) {
+            const presupuestosRes = await query(`
+                SELECT SUM(monto_limite) as total 
+                FROM presupuestos 
+                WHERE usuario_id = $1 AND mes = $2 AND anio = $3
+            `, [user.id, parseInt(month), parseInt(year)])
+            sumaPresupuestos = presupuestosRes.rows[0].total ? parseFloat(presupuestosRes.rows[0].total) : 0;
+
+            const sinPresupuestoRes = await query(`
+                SELECT SUM(monto) as total
+                FROM transacciones
+                WHERE usuario_id = $1 AND tipo = 'gasto' AND presupuesto_id IS NULL
+                AND EXTRACT(MONTH FROM fecha) = $2 AND EXTRACT(YEAR FROM fecha) = $3
+            `, [user.id, parseInt(month), parseInt(year)])
+            gastosSinPresupuesto = sinPresupuestoRes.rows[0].total ? parseFloat(sinPresupuestoRes.rows[0].total) : 0;
+        }
+
         // Calculo de ahorro total (historico completo sin filtro de mes/año)
         const ahorroRes = await query(`
             SELECT SUM(monto) as total
@@ -249,6 +276,9 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             ingresos,
             gastos,
             balance: ingresos - gastos,
+            balanceNetoReal: ingresos - sumaPresupuestos - gastosSinPresupuesto,
+            sumaPresupuestos,
+            gastosSinPresupuesto,
             ahorroTotal,
             gastosPorCategoria,
             gastosPorTarjeta

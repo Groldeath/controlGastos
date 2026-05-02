@@ -37,8 +37,21 @@ CREATE TABLE IF NOT EXISTS transacciones (
     monto DECIMAL(12, 2) NOT NULL,
     categoria_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
     tarjeta_credito_id INTEGER REFERENCES tarjetas_credito(id) ON DELETE SET NULL,
+    presupuesto_id INTEGER REFERENCES presupuestos(id) ON DELETE SET NULL,
     descripcion TEXT,
     fecha DATE NOT NULL,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. Tabla de Presupuestos
+CREATE TABLE IF NOT EXISTS presupuestos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    nombre VARCHAR(100) NOT NULL,
+    monto_limite DECIMAL(12, 2) NOT NULL,
+    mes INTEGER NOT NULL CHECK (mes BETWEEN 1 AND 12),
+    anio INTEGER NOT NULL,
+    color_hex VARCHAR(7) DEFAULT '#3b82f6',
     fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -47,4 +60,5 @@ CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_fecha ON transacciones(usua
 CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_tipo ON transacciones(usuario_id, tipo);
 CREATE INDEX IF NOT EXISTS idx_categorias_usuario ON categorias(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_tarjetas_usuario ON tarjetas_credito(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_presupuestos_usuario_periodo ON presupuestos(usuario_id, anio, mes);
 

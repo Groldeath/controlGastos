@@ -42,6 +42,7 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
     - **Total Gastado:** Sumatoria de gastos del mes seleccionado.
     - **Ingresos Totales:** Sumatoria de ingresos del mes seleccionado.
     - **Ahorros Totales:** Visualización del ahorro acumulado histórico.
+    - **Dinero Libre (Balance Neto):** Cálculo de `Ingresos - Presupuestos Asignados - Gastos sin Presupuesto`.
 - **RU4.2: Análisis de Gastos:** Lista scrollable de gastos agrupados por categoría con sus respectivos montos, ordenado de la categoria con mayor gasto a la menor.
 - **RU4.3: Control de Tarjetas:** Widget de "Próximos Pagos Pendientes" que muestre el saldo acumulado de las tarjetas según su ciclo de facturación.
 - **RU4.4: Filtros Temporales:** Selector de Mes/Año para consultar datos históricos.
@@ -56,6 +57,11 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
 - **RU5.1: Interacción Ligera:** Dado que los formularios de gestión de categorías y tarjetas son compactos, se mostrarán en ventanas emergentes (modales) o paneles hover sin necesidad de navegar a una nueva página.
 - **RU5.2: CRUD en Modal:** El usuario podrá añadir, editar y eliminar categorías o tarjetas directamente desde estas ventanas.
 
+### R6. Módulo de Presupuestos (Independientes)
+- **RU6.1: Creación de Presupuestos:** El usuario puede definir presupuestos mensuales con nombre y monto límite.
+- **RU6.2: Vinculación Manual:** Posibilidad de asociar un gasto a un presupuesto específico al registrar el movimiento.
+- **RU6.3: Monitoreo de Ejecución:** Visualización de barras de progreso en el Dashboard para cada presupuesto activo.
+
 ## 3. Requerimientos No Funcionales
 
 ### RN1. Interfaz de Usuario (UI/UX)
@@ -68,7 +74,7 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
         - Botón "+ Agregar" en el Header para versiones de escritorio.
         - **FAB (Floating Action Button):** En versiones móviles, el botón se transforma en un círculo flotante fijo en la esquina inferior derecha para un acceso ergonómico y rápido.
 - **RN1.4: Navegación Lateral (Sidebar):**
-    - **Cuerpo:** Dashboard, Movimientos (Página), Categorías (Modal), Tarjetas (Modal).
+    - **Cuerpo (Principal):** Dashboard, Presupuestos (Página), Movimientos (Página), Categorías (Modal), Tarjetas (Modal).
     - **Sección Admin:** Administrar Usuarios.
     - **Footer (Perfil):** Nombre, Rol y menú de opciones (Cuenta/Cerrar Sesión).
 - **RN1.5: Estética Premium:** Interfaz limpia con micro-animaciones y sombras suaves.
@@ -83,4 +89,4 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
 
 ---
 **Estado:** Requerimientos Ejecutados e Implementados Exitosamente (V1). Todos los submódulos de UI, UX interactivos (in-line actions), Backend con Auth, y orquestación base con `.docker-compose.yml` cubiertos.
-**Última Actualización:** 2026-03-09
+**Última Actualización:** 2026-05-01

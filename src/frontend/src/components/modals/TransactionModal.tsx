@@ -15,6 +15,11 @@ interface CreditCard {
     nombre: string;
 }
 
+interface Budget {
+    id: number;
+    nombre: string;
+}
+
 interface TransactionModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -31,10 +36,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const [descripcion, setDescripcion] = useState('');
     const [categoriaId, setCategoriaId] = useState('');
     const [tarjetaId, setTarjetaId] = useState('');
+    const [presupuestoId, setPresupuestoId] = useState('');
     const [ahorroAction, setAhorroAction] = useState<'depositar' | 'retirar'>('depositar');
 
     const [categorias, setCategorias] = useState<Category[]>([]);
     const [tarjetas, setTarjetas] = useState<CreditCard[]>([]);
+    const [presupuestos, setPresupuestos] = useState<Budget[]>([]);
     const [loadingData, setLoadingData] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -49,6 +56,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 setDescripcion(initialData.descripcion);
                 setCategoriaId(initialData.categoria?.id?.toString() || '');
                 setTarjetaId(initialData.tarjeta?.id?.toString() || '');
+                setPresupuestoId(initialData.presupuesto?.id?.toString() || '');
                 setAhorroAction(parseFloat(initialData.monto) < 0 ? 'retirar' : 'depositar');
             } else {
                 // Reset form
@@ -58,6 +66,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 setDescripcion('');
                 setCategoriaId('');
                 setTarjetaId('');
+                setPresupuestoId('');
                 setAhorroAction('depositar');
             }
             setError('');
@@ -67,21 +76,23 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const loadInitialData = async () => {
         setLoadingData(true);
         try {
-            const [catsRes, cardsRes] = await Promise.all([
+            const currentFecha = initialData ? new Date(initialData.fecha) : new Date();
+            const m = currentFecha.getMonth() + 1;
+            const y = currentFecha.getFullYear();
+
+            const [catsRes, cardsRes, budgetsRes] = await Promise.all([
                 fetchApi('/api/categories'),
-                fetchApi('/api/credit-cards')
+                fetchApi('/api/credit-cards'),
+                fetchApi(`/api/presupuestos?mes=${m}&anio=${y}`)
             ]);
             setCategorias(catsRes);
             setTarjetas(cardsRes);
+            setPresupuestos(budgetsRes);
 
-            setCategorias(catsRes);
-            setTarjetas(cardsRes);
-
-            // Set first item as default if available ONLY if we are NOT editing
             if (!initialData) {
                 if (catsRes.length > 0) setCategoriaId(catsRes[0].id.toString());
-                // Para tarjetas, el valor vacio '' representará "Ninguna"
                 setTarjetaId('');
+                setPresupuestoId('');
             }
         } catch (err: any) {
             setError('Error cargando datos: ' + err.message);
@@ -89,6 +100,24 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             setLoadingData(false);
         }
     };
+
+    // Recargar presupuestos cuando cambia la fecha
+    useEffect(() => {
+        if (!isOpen || loadingData || !fecha) return;
+        const d = new Date(fecha);
+        const m = d.getMonth() + 1;
+        const y = d.getFullYear();
+        
+        fetchApi(`/api/presupuestos?mes=${m}&anio=${y}`)
+            .then(res => {
+                setPresupuestos(res);
+                // Si el presupuesto seleccionado ya no existe en el nuevo mes, limpiar
+                if (presupuestoId && !res.find((b: any) => b.id.toString() === presupuestoId)) {
+                    setPresupuestoId('');
+                }
+            })
+            .catch(err => console.error('Error cargando presupuestos', err));
+    }, [fecha]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -115,6 +144,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
             if (tipo === 'gasto' && tarjetaId !== '') {
                 body.tarjeta_credito_id = parseInt(tarjetaId);
+            }
+
+            if (tipo === 'gasto' && presupuestoId !== '') {
+                body.presupuesto_id = parseInt(presupuestoId);
             }
 
             if (initialData) {
@@ -218,6 +251,20 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     options={[
                                         { value: '', label: 'Sin Categoría' },
                                         ...categorias.map(c => ({ value: c.id.toString(), label: c.nombre }))
+                                    ]}
+                                />
+                            </div>
+                        )}
+
+                        {tipo === 'gasto' && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Presupuesto</label>
+                                <Select
+                                    value={presupuestoId}
+                                    onChange={setPresupuestoId}
+                                    options={[
+                                        { value: '', label: 'Ninguno' },
+                                        ...presupuestos.map(p => ({ value: p.id.toString(), label: p.nombre }))
                                     ]}
                                 />
                             </div>
