@@ -58,9 +58,16 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
 - **RU5.2: CRUD en Modal:** El usuario podrá añadir, editar y eliminar categorías o tarjetas directamente desde estas ventanas.
 
 ### R6. Módulo de Presupuestos (Independientes)
-- **RU6.1: Creación de Presupuestos:** El usuario puede definir presupuestos mensuales con nombre y monto límite.
-- **RU6.2: Vinculación Manual:** Posibilidad de asociar un gasto a un presupuesto específico al registrar el movimiento.
-- **RU6.3: Monitoreo de Ejecución:** Visualización de barras de progreso en el Dashboard para cada presupuesto activo.
+Los presupuestos actúan como "bolsas de dinero" temporales mensuales con un nombre y límite definido. El usuario vincula un gasto a un presupuesto de forma explícita al registrar el movimiento, manteniendo independencia total entre la clasificación por categorías y el control presupuestario.
+
+- **RU6.1: Creación de Presupuestos:** El usuario puede definir presupuestos mensuales con nombre, monto límite y mes/año de vigencia. Los presupuestos son específicos por usuario.
+- **RU6.2: CRUD Completo:** Crear, leer, actualizar y eliminar presupuestos. La edición permite modificar nombre, monto límite y color representativo.
+- **RU6.3: Vinculación Manual de Movimientos:** El formulario de movimientos incluye un selector de presupuestos activos para el mes/año de la fecha del gasto. La vinculación es opcional.
+- **RU6.4: Validación de Fecha:** Si se cambia la fecha de un movimiento a un mes distinto, la vinculación al presupuesto debe resetearse si el presupuesto no existe en el nuevo periodo.
+- **RU6.5: Monitoreo de Ejecución:** Visualización de barras de progreso en el Dashboard para cada presupuesto activo, con estados por color: verde (< 75%), amarillo (75-90%), rojo (> 90%).
+- **RU6.6: Vista de Movimientos por Presupuesto:** Al hacer clic en un presupuesto, se muestra un modal con el listado de todos los movimientos asociados a él.
+- **RU6.7: Clonación de Presupuestos:** Opción para clonar los presupuestos del mes anterior al mes actual, facilitando la configuración recurrente.
+- **RU6.8: Cálculo de Consumo:** El gasto actual de un presupuesto se calcula como la sumatoria de todos los movimientos tipo "Gasto" vinculados a su ID. El porcentaje de ejecución es `(total_gastado / monto_limite) * 100`.
 
 ## 3. Requerimientos No Funcionales
 
@@ -88,5 +95,5 @@ Una herramienta para que los usuarios puedan registrar sus ingresos y gastos dia
 - **RN3.3: Gitea:** Gestión de código y paquetes a través de Gitea.
 
 ---
-**Estado:** Requerimientos Ejecutados e Implementados Exitosamente (V1). Todos los submódulos de UI, UX interactivos (in-line actions), Backend con Auth, y orquestación base con `.docker-compose.yml` cubiertos.
-**Última Actualización:** 2026-05-01
+**Estado:** Requerimientos V1.2 — Todos los módulos implementados (Dashboard, Movimientos, Categorías, Tarjetas, Presupuestos, Usuarios, Auth híbrida OIDC).
+**Última Actualización:** 2026-05-03
