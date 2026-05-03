@@ -97,6 +97,7 @@ const Movements: React.FC = () => {
                                         <th>Fecha</th>
                                         <th>Descripción</th>
                                         <th>Categoría</th>
+                                        <th>Presupuesto</th>
                                         <th>Tarjeta</th>
                                         <th className={styles.amountHeader}>Monto</th>
                                         <th className={styles.actionHeader}></th>
@@ -115,6 +116,7 @@ const Movements: React.FC = () => {
                                             </td>
                                             <td className={styles.descCell}>{trx.descripcion}</td>
                                             <td className={styles.catCell}>{trx.categoria?.nombre || 'General'}</td>
+                                            <td className={styles.catCell}>{trx.tipo === 'gasto' ? (trx.presupuesto?.nombre || '-') : '-'}</td>
                                             <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || '-') : '-'}</td>
                                             <td className={`${styles.amountCell} ${trx.tipo === 'gasto' ? styles.amountExp :
                                                 trx.tipo === 'ingreso' ? styles.amountInc :
