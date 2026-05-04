@@ -42,7 +42,10 @@ export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => 
         if (response.status === 401) {
             sessionStorage.removeItem('controlGastos_token');
             sessionStorage.removeItem('controlGastos_user');
-            window.location.href = '/login';
+            // Usar replace para evitar acumular entradas en el historial
+            window.location.replace('/login');
+            // Nunca lanzar error después de redirect — la página se recarga
+            return Promise.reject(new Error('Sesión expirada'));
         }
 
         throw new Error(errorMessage);

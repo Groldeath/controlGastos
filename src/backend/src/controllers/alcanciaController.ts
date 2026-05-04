@@ -31,7 +31,8 @@ export const createAlcancia = async (req: FastifyRequest, reply: FastifyReply) =
         )
         return reply.status(201).send(res.rows[0])
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error creando alcancía: ${e.message}` })
+        req.log.error(`Error creando alcancía: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -50,7 +51,8 @@ export const getAlcancias = async (req: FastifyRequest, reply: FastifyReply) => 
             monto_inicial: row.monto_inicial ? parseFloat(row.monto_inicial) : null
         }))
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo alcancías: ${e.message}` })
+        req.log.error(`Error obteniendo alcancías: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -88,7 +90,8 @@ export const updateAlcancia = async (req: FastifyRequest, reply: FastifyReply) =
         )
         return res.rows[0]
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error actualizando alcancía: ${e.message}` })
+        req.log.error(`Error actualizando alcancía: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -101,7 +104,8 @@ export const deleteAlcancia = async (req: FastifyRequest, reply: FastifyReply) =
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Alcancía no encontrada' })
         return { message: 'Alcancía eliminada', deletedId: res.rows[0].id }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error eliminando alcancía: ${e.message}` })
+        req.log.error(`Error eliminando alcancía: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -131,7 +135,8 @@ export const depositar = async (req: FastifyRequest, reply: FastifyReply) => {
             saldo_actual: parseFloat(res.rows[0].saldo_actual)
         }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error depositando en alcancía: ${e.message}` })
+        req.log.error(`Error depositando en alcancía: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -162,6 +167,7 @@ export const retirar = async (req: FastifyRequest, reply: FastifyReply) => {
             saldo_actual: parseFloat(res.rows[0].saldo_actual)
         }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error retirando de alcancía: ${e.message}` })
+        req.log.error(`Error retirando de alcancía: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }

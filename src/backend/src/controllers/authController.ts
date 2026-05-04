@@ -36,7 +36,7 @@ export const oidcLogin = async (req: FastifyRequest, reply: FastifyReply) => {
         
         return reply.redirect(url);
     } catch (error: any) {
-        req.log.error(error, `Error inicializando OIDC: ${error.message}`);
+        req.log.error(`Error inicializando OIDC: ${error.message}`);
         return reply.status(500).send({ error: 'Configuración de proveedor de identidad no disponible' });
     }
 }
@@ -46,13 +46,10 @@ export const oidcCallback = async (req: FastifyRequest, reply: FastifyReply) => 
         const client = await getOidcClient();
         const params = client.callbackParams(req.raw.url || req.url);
         
-        // Bypass del state: le pasamos el mismo que vino para que coincida en la librería (stateless)
-        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params, {
-            state: params.state
-        });
+        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params);
         
         const claims = tokenSet.claims();
-        req.log.info({ claims }, 'OIDC Claims recibidos exitosamente');
+        req.log.info('OIDC Claims recibidos exitosamente');
         
         if (!claims.sub) {
             return reply.status(400).send({ error: 'Respuesta inválida del proveedor. Falta el identificador (subject)' });
@@ -108,7 +105,7 @@ export const oidcCallback = async (req: FastifyRequest, reply: FastifyReply) => 
         return reply.redirect(frontendUrl);
 
     } catch (error: any) {
-        req.log.error(error, `Error en callback OIDC: ${error.message}`);
+        req.log.error(`Error en callback OIDC: ${error.message}`);
         const publicUrl = (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
         const frontendUrl = `${publicUrl}/login?error=oidc_failed`;
         return reply.redirect(frontendUrl);

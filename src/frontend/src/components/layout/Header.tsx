@@ -59,8 +59,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, isMobile, openTransactionM
     return (
         <header className={styles.header}>
             <div className={styles.leftSection}>
-                <button className={styles.menuBtn} onClick={onMenuClick}>
-                    <Menu size={24} />
+                <button className={styles.menuBtn} onClick={onMenuClick} aria-label="Abrir menú">
+                    <Menu size={24} aria-hidden="true" />
                 </button>
                 {!isMobile && <h2 className={styles.pageTitle} style={{ marginLeft: '12px' }}>{getPageTitle()}</h2>}
             </div>
@@ -71,8 +71,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, isMobile, openTransactionM
                         <button
                             className={styles.arrowBtn}
                             onClick={handlePrevMonth}
+                            aria-label="Mes anterior"
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={20} aria-hidden="true" />
                         </button>
 
                         <button 
@@ -85,8 +86,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, isMobile, openTransactionM
                         <button
                             className={styles.arrowBtn}
                             onClick={handleNextMonth}
+                            aria-label="Mes siguiente"
                         >
-                            <ChevronRight size={20} />
+                            <ChevronRight size={20} aria-hidden="true" />
                         </button>
                     </div>
 

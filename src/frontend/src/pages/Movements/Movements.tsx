@@ -18,7 +18,8 @@ const Movements: React.FC = () => {
 
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
-    const { openTransactionModal } = useOutletContext<any>();
+    const ctx = useOutletContext<any>();
+    const openTransactionModal = ctx?.openTransactionModal || (() => {});
 
     const fetchTransactions = async (pageToFetch: number = currentPage) => {
         setLoading(true);

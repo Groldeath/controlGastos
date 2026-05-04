@@ -1,7 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../db'
 import { hashPassword, verifyPassword } from '../utils/security'
-import crypto from 'crypto'
 
 export const setupInitialAdmin = async (req: FastifyRequest, reply: FastifyReply) => {
     const checkRes = await query('SELECT COUNT(*) FROM usuarios')
@@ -19,6 +18,10 @@ export const setupInitialAdmin = async (req: FastifyRequest, reply: FastifyReply
         return reply.status(400).send({ error: 'Faltan campos obligatorios' })
     }
 
+    if (password.length < 8) {
+        return reply.status(400).send({ error: 'La contraseña debe tener al menos 8 caracteres' })
+    }
+
     const hashed = await hashPassword(password)
 
     const insertQuery = `
@@ -31,7 +34,8 @@ export const setupInitialAdmin = async (req: FastifyRequest, reply: FastifyReply
         const token = await reply.jwtSign({ id: res.rows[0].id, rol: res.rows[0].rol })
         return reply.status(201).send({ message: 'Administrador principal creado', token, user: res.rows[0] })
     } catch (error: any) {
-        return reply.status(500).send({ error: `Error creando admin: ${error.message}` })
+        req.log.error(`Error creando admin: ${error.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -40,18 +44,28 @@ export const login = async (req: FastifyRequest, reply: FastifyReply) => {
     if (!body) return reply.status(400).send({ error: 'Cuerpo JSON obligatorio' })
 
     const { email, password } = body
-    const resp = await query('SELECT id, nombre_usuario, email, hash_contrasena, rol FROM usuarios WHERE email = $1', [email])
+
+    if (!email || !password) {
+        return reply.status(401).send({ error: 'Credenciales inválidas' })
+    }
+
+    const resp = await query('SELECT id, nombre_usuario, email, hash_contrasena, rol, oidc_id FROM usuarios WHERE email = $1', [email])
 
     if (resp.rows.length === 0) {
         return reply.status(401).send({ error: 'Credenciales inválidas' })
     }
     const user = resp.rows[0]
 
+    // Usuarios OIDC no tienen contraseña local
+    if (user.oidc_id && user.hash_contrasena === 'sso-account-no-local-password') {
+        return reply.status(401).send({ error: 'Esta cuenta usa inicio de sesión con OIDC. Usa el botón de acceso externo.' })
+    }
+
     const isValid = await verifyPassword(password, user.hash_contrasena)
     if (!isValid) return reply.status(401).send({ error: 'Credenciales inválidas' })
 
     const token = await reply.jwtSign({ id: user.id, rol: user.rol }, { expiresIn: '8h' })
-    return { token, user: { id: user.id, nombre_usuario: user.nombre_usuario, rol: user.rol } }
+    return { token, user: { id: user.id, nombre_usuario: user.nombre_usuario, email: user.email, rol: user.rol } }
 }
 
 export const getProfile = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -66,7 +80,8 @@ export const getUsers = async (req: FastifyRequest, reply: FastifyReply) => {
         const res = await query('SELECT id, nombre_usuario, email, rol, fecha_creacion FROM usuarios ORDER BY id ASC')
         return res.rows
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo usuarios: ${e.message}` })
+        req.log.error(`Error obteniendo usuarios: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -76,6 +91,15 @@ export const createUser = async (req: FastifyRequest, reply: FastifyReply) => {
     if (!body) return reply.status(400).send({ error: 'Cuerpo JSON obligatorio' })
 
     const { nombre_usuario, email, password, rol } = body
+
+    if (!nombre_usuario || !email || !password) {
+        return reply.status(400).send({ error: 'Campos obligatorios faltantes' })
+    }
+
+    if (password.length < 8) {
+        return reply.status(400).send({ error: 'La contraseña debe tener al menos 8 caracteres' })
+    }
+
     const hashed = await hashPassword(password)
 
     try {
@@ -83,7 +107,8 @@ export const createUser = async (req: FastifyRequest, reply: FastifyReply) => {
             [nombre_usuario, email, hashed, rol || 'usuario'])
         return reply.status(201).send({ message: 'Usuario creado exitosamente', id: res.rows[0].id })
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error creando usuario: ${e.message}` })
+        req.log.error(`Error creando usuario: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -93,7 +118,8 @@ export const checkSetupStatus = async (req: FastifyRequest, reply: FastifyReply)
         const count = parseInt(resp.rows[0].count)
         return reply.send({ requireSetup: count === 0 })
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error verificando setup: ${e.message}` })
+        req.log.error(`Error verificando setup: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -113,7 +139,8 @@ export const updateUser = async (req: FastifyRequest, reply: FastifyReply) => {
         }
         return reply.send({ message: 'Usuario actualizado exitosamente' })
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error actualizando usuario: ${e.message}` })
+        req.log.error(`Error actualizando usuario: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -130,7 +157,7 @@ export const deleteUser = async (req: FastifyRequest, reply: FastifyReply) => {
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Usuario no encontrado' })
         return reply.send({ message: 'Usuario eliminado' })
     } catch (e: any) {
-        // Handle FK cascade issues if transacciones depends on it (depends on schema)
-        return reply.status(500).send({ error: `Error al eliminar usuario, posiblemente tiene datos asociados: ${e.message}` })
+        req.log.error(`Error eliminando usuario: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }

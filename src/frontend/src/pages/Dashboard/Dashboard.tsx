@@ -33,7 +33,8 @@ const Dashboard: React.FC = () => {
     const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
     const [budgets, setBudgets] = useState<Budget[]>([]);
 
-    const { openTransactionModal } = useOutletContext<any>();
+    const ctx = useOutletContext<any>();
+    const openTransactionModal = ctx?.openTransactionModal || (() => {});
 
     const fetchDashboardData = async () => {
         setLoading(true);

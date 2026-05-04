@@ -14,7 +14,8 @@ export const createCategory = async (req: FastifyRequest, reply: FastifyReply) =
         )
         return reply.status(201).send(res.rows[0])
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error creando categoría: ${e.message}` })
+        req.log.error(`Error creando categoría: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -24,7 +25,8 @@ export const getCategories = async (req: FastifyRequest, reply: FastifyReply) =>
         const res = await query('SELECT * FROM categorias WHERE usuario_id = $1 ORDER BY nombre ASC', [user.id])
         return res.rows
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo categorías: ${e.message}` })
+        req.log.error(`Error obteniendo categorías: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -40,10 +42,11 @@ export const updateCategory = async (req: FastifyRequest, reply: FastifyReply) =
             'UPDATE categorias SET nombre = $1 WHERE id = $2 AND usuario_id = $3 RETURNING *',
             [nombre, id, user.id]
         )
-        if (res.rowCount === 0) return reply.status(404).send({ error: 'Categoría no encontrada o no pertenece al usuario' })
+        if (res.rowCount === 0) return reply.status(404).send({ error: 'Categoría no encontrada' })
         return res.rows[0]
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error actualizando categoría: ${e.message}` })
+        req.log.error(`Error actualizando categoría: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -52,11 +55,11 @@ export const deleteCategory = async (req: FastifyRequest, reply: FastifyReply) =
     const { id } = req.params as { id: string }
 
     try {
-        // PostgreSql maneja ON DELETE SET NULL para las transacciones asociadas gracias al DDL
         const res = await query('DELETE FROM categorias WHERE id = $1 AND usuario_id = $2 RETURNING id', [id, user.id])
-        if (res.rowCount === 0) return reply.status(404).send({ error: 'Categoría no encontrada o no pertenece al usuario' })
+        if (res.rowCount === 0) return reply.status(404).send({ error: 'Categoría no encontrada' })
         return { message: 'Categoría eliminada', deletedId: res.rows[0].id }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error eliminando categoría: ${e.message}` })
+        req.log.error(`Error eliminando categoría: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }

@@ -43,6 +43,10 @@ const GlobalLayout: React.FC = () => {
 
     return (
         <div className={styles.layoutContainer}>
+            <a href="#main-content" className="skipLink">
+                Saltar al contenido principal
+            </a>
+
             <Sidebar
                 isOpen={isSidebarOpen}
                 onClose={() => setSidebarOpen(false)}
@@ -51,7 +55,7 @@ const GlobalLayout: React.FC = () => {
                 onOpenCardModal={() => setCardModalOpen(true)}
             />
 
-            <main className={styles.mainContent}>
+            <main className={styles.mainContent} id="main-content">
                 <Header
                     onMenuClick={() => setSidebarOpen((prev) => !prev)}
                     isMobile={isMobile}

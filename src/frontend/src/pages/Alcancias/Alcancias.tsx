@@ -179,8 +179,8 @@ const Alcancias: React.FC = () => {
                                 <input type="number" step="0.01" value={editObjetivo} onChange={(e) => setEditObjetivo(e.target.value)} className={styles.editInputNumber} placeholder="Objetivo (opcional)" />
                             </div>
                             <div className={styles.editActions}>
-                                <button className={styles.iconBtnSuccess} onClick={() => handleUpdate(a.id)}><Check size={16} /></button>
-                                <button className={styles.iconBtnCancel} onClick={() => setEditingId(null)}><X size={16} /></button>
+                                <button className={styles.iconBtnSuccess} onClick={() => handleUpdate(a.id)} aria-label="Guardar"><Check size={16} aria-hidden="true" /></button>
+                                <button className={styles.iconBtnCancel} onClick={() => setEditingId(null)} aria-label="Cancelar"><X size={16} aria-hidden="true" /></button>
                             </div>
                         </div>
                     ) : (
@@ -190,13 +190,13 @@ const Alcancias: React.FC = () => {
                             </div>
                             {isDeleting ? (
                                 <div className={styles.actions}>
-                                    <button className={styles.iconBtnSuccess} onClick={() => handleDelete(a.id)}><Check size={16} /></button>
-                                    <button className={styles.iconBtnCancel} onClick={() => setDeleteConfirmId(null)}><X size={16} /></button>
+                                    <button className={styles.iconBtnSuccess} onClick={() => handleDelete(a.id)} aria-label="Confirmar eliminar"><Check size={16} aria-hidden="true" /></button>
+                                    <button className={styles.iconBtnCancel} onClick={() => setDeleteConfirmId(null)} aria-label="Cancelar"><X size={16} aria-hidden="true" /></button>
                                 </div>
                             ) : (
                                 <div className={styles.actions}>
-                                    <button className={styles.iconBtn} onClick={() => startEditing(a)} title="Editar"><Edit2 size={16} /></button>
-                                    <button className={`${styles.iconBtn} ${styles.iconBtnDelete}`} onClick={() => setDeleteConfirmId(a.id)} title="Eliminar"><Trash2 size={16} /></button>
+                                    <button className={styles.iconBtn} onClick={() => startEditing(a)} aria-label="Editar"><Edit2 size={16} aria-hidden="true" /></button>
+                                    <button className={`${styles.iconBtn} ${styles.iconBtnDelete}`} onClick={() => setDeleteConfirmId(a.id)} aria-label="Eliminar"><Trash2 size={16} aria-hidden="true" /></button>
                                 </div>
                             )}
                         </>
@@ -257,8 +257,8 @@ const Alcancias: React.FC = () => {
                                 <input type="number" step="0.01" value={editMontoInicial} onChange={(e) => setEditMontoInicial(e.target.value)} className={styles.editInputNumber} placeholder="Presupuesto" />
                             </div>
                             <div className={styles.editActions}>
-                                <button className={styles.iconBtnSuccess} onClick={() => handleUpdate(a.id)}><Check size={16} /></button>
-                                <button className={styles.iconBtnCancel} onClick={() => setEditingId(null)}><X size={16} /></button>
+                                <button className={styles.iconBtnSuccess} onClick={() => handleUpdate(a.id)} aria-label="Guardar"><Check size={16} aria-hidden="true" /></button>
+                                <button className={styles.iconBtnCancel} onClick={() => setEditingId(null)} aria-label="Cancelar"><X size={16} aria-hidden="true" /></button>
                             </div>
                         </div>
                     ) : (
@@ -268,13 +268,13 @@ const Alcancias: React.FC = () => {
                             </div>
                             {isDeleting ? (
                                 <div className={styles.actions}>
-                                    <button className={styles.iconBtnSuccess} onClick={() => handleDelete(a.id)}><Check size={16} /></button>
-                                    <button className={styles.iconBtnCancel} onClick={() => setDeleteConfirmId(null)}><X size={16} /></button>
+                                    <button className={styles.iconBtnSuccess} onClick={() => handleDelete(a.id)} aria-label="Confirmar eliminar"><Check size={16} aria-hidden="true" /></button>
+                                    <button className={styles.iconBtnCancel} onClick={() => setDeleteConfirmId(null)} aria-label="Cancelar"><X size={16} aria-hidden="true" /></button>
                                 </div>
                             ) : (
                                 <div className={styles.actions}>
-                                    <button className={styles.iconBtn} onClick={() => startEditing(a)} title="Editar"><Edit2 size={16} /></button>
-                                    <button className={`${styles.iconBtn} ${styles.iconBtnDelete}`} onClick={() => setDeleteConfirmId(a.id)} title="Eliminar"><Trash2 size={16} /></button>
+                                    <button className={styles.iconBtn} onClick={() => startEditing(a)} aria-label="Editar"><Edit2 size={16} aria-hidden="true" /></button>
+                                    <button className={`${styles.iconBtn} ${styles.iconBtnDelete}`} onClick={() => setDeleteConfirmId(a.id)} aria-label="Eliminar"><Trash2 size={16} aria-hidden="true" /></button>
                                 </div>
                             )}
                         </>
@@ -325,7 +325,7 @@ const Alcancias: React.FC = () => {
                 </div>
             </div>
 
-            {error && <div className={styles.errorAlert}>{error}</div>}
+            {error && <div className={styles.errorAlert} role="alert">{error}</div>}
 
             {loading ? (
                 <div className={styles.loader}>
@@ -367,7 +367,7 @@ const Alcancias: React.FC = () => {
 
             <Modal isOpen={isCreateModalOpen} onClose={() => { setCreateModalOpen(false); setError(''); }} title="Nueva Alcancía">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {error && <div className={styles.errorAlert}>{error}</div>}
+                    {error && <div className={styles.errorAlert} role="alert">{error}</div>}
 
                     <div>
                         <label style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', display: 'block', marginBottom: '0.5rem' }}>Tipo</label>
@@ -448,7 +448,7 @@ const Alcancias: React.FC = () => {
                 title={movAlcancia ? `${movTipo === 'depositar' ? 'Depositar en' : 'Retirar de'} ${movAlcancia.nombre}` : ''}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {error && <div className={styles.errorAlert}>{error}</div>}
+                    {error && <div className={styles.errorAlert} role="alert">{error}</div>}
                     {movAlcancia && (
                         <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                             Saldo actual: <strong style={{ color: 'var(--text-primary)' }}>${formatCurrency(movAlcancia.saldo_actual)}</strong>

@@ -22,7 +22,8 @@ export const createBudget = async (req: FastifyRequest, reply: FastifyReply) => 
         )
         return reply.status(201).send(res.rows[0])
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error creando presupuesto: ${e.message}` })
+        req.log.error(`Error creando presupuesto: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -52,7 +53,8 @@ export const getBudgets = async (req: FastifyRequest, reply: FastifyReply) => {
             total_gastado: parseFloat(row.total_gastado)
         }))
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo presupuestos: ${e.message}` })
+        req.log.error(`Error obteniendo presupuestos: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -81,7 +83,8 @@ export const updateBudget = async (req: FastifyRequest, reply: FastifyReply) => 
         )
         return res.rows[0]
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error actualizando presupuesto: ${e.message}` })
+        req.log.error(`Error actualizando presupuesto: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -94,7 +97,8 @@ export const deleteBudget = async (req: FastifyRequest, reply: FastifyReply) => 
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Presupuesto no encontrado' })
         return { message: 'Presupuesto eliminado', deletedId: res.rows[0].id }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error eliminando presupuesto: ${e.message}` })
+        req.log.error(`Error eliminando presupuesto: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -118,6 +122,7 @@ export const getBudgetTransactions = async (req: FastifyRequest, reply: FastifyR
 
         return res.rows
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo transacciones del presupuesto: ${e.message}` })
+        req.log.error(`Error obteniendo transacciones del presupuesto: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }

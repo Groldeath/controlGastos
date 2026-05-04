@@ -23,6 +23,20 @@ export const createTransaction = async (req: FastifyRequest, reply: FastifyReply
         finalPresupuestoId = null;
     }
 
+    // Verificar propiedad de los IDs foráneos
+    if (finalCategoriaId) {
+        const catCheck = await query('SELECT id FROM categorias WHERE id = $1 AND usuario_id = $2', [finalCategoriaId, user.id])
+        if (catCheck.rowCount === 0) return reply.status(403).send({ error: 'La categoría no pertenece al usuario' })
+    }
+    if (finalTarjetaId) {
+        const cardCheck = await query('SELECT id FROM tarjetas_credito WHERE id = $1 AND usuario_id = $2', [finalTarjetaId, user.id])
+        if (cardCheck.rowCount === 0) return reply.status(403).send({ error: 'La tarjeta no pertenece al usuario' })
+    }
+    if (finalPresupuestoId) {
+        const budgetCheck = await query('SELECT id FROM presupuestos WHERE id = $1 AND usuario_id = $2', [finalPresupuestoId, user.id])
+        if (budgetCheck.rowCount === 0) return reply.status(403).send({ error: 'El presupuesto no pertenece al usuario' })
+    }
+
     try {
         const res = await query(
             `INSERT INTO transacciones (usuario_id, tipo, monto, categoria_id, tarjeta_credito_id, presupuesto_id, descripcion, fecha) 
@@ -31,7 +45,8 @@ export const createTransaction = async (req: FastifyRequest, reply: FastifyReply
         )
         return reply.status(201).send(res.rows[0])
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error creando transacción: ${e.message}` })
+        req.log.error(`Error creando transacción: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -93,7 +108,8 @@ export const getTransactions = async (req: FastifyRequest, reply: FastifyReply) 
             data: formattedData
         }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo transacciones: ${e.message}` })
+        req.log.error(`Error obteniendo transacciones: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -114,6 +130,20 @@ export const updateTransaction = async (req: FastifyRequest, reply: FastifyReply
     let finalTarjetaId = tipo === 'gasto' && tarjeta_credito_id ? parseInt(tarjeta_credito_id) : null;
     let finalPresupuestoId = tipo === 'gasto' && presupuesto_id ? parseInt(presupuesto_id) : null;
 
+    // Verificar propiedad de los IDs foráneos
+    if (finalCategoriaId) {
+        const catCheck = await query('SELECT id FROM categorias WHERE id = $1 AND usuario_id = $2', [finalCategoriaId, user.id])
+        if (catCheck.rowCount === 0) return reply.status(403).send({ error: 'La categoría no pertenece al usuario' })
+    }
+    if (finalTarjetaId) {
+        const cardCheck = await query('SELECT id FROM tarjetas_credito WHERE id = $1 AND usuario_id = $2', [finalTarjetaId, user.id])
+        if (cardCheck.rowCount === 0) return reply.status(403).send({ error: 'La tarjeta no pertenece al usuario' })
+    }
+    if (finalPresupuestoId) {
+        const budgetCheck = await query('SELECT id FROM presupuestos WHERE id = $1 AND usuario_id = $2', [finalPresupuestoId, user.id])
+        if (budgetCheck.rowCount === 0) return reply.status(403).send({ error: 'El presupuesto no pertenece al usuario' })
+    }
+
     try {
         const updateQuery = `
             UPDATE transacciones 
@@ -122,11 +152,12 @@ export const updateTransaction = async (req: FastifyRequest, reply: FastifyReply
         `
         const res = await query(updateQuery, [tipo, monto, finalCategoriaId, finalTarjetaId, finalPresupuestoId, descripcion, fecha, id, user.id])
 
-        if (res.rowCount === 0) return reply.status(404).send({ error: 'Transacción no encontrada o no pertenece al usuario' })
+        if (res.rowCount === 0) return reply.status(404).send({ error: 'Transacción no encontrada' })
 
         return res.rows[0]
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error actualizando transacción: ${e.message}` })
+        req.log.error(`Error actualizando transacción: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -139,7 +170,8 @@ export const deleteTransaction = async (req: FastifyRequest, reply: FastifyReply
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Transacción no encontrada' })
         return { message: 'Transacción eliminada', deletedId: res.rows[0].id }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error eliminando transacción: ${e.message}` })
+        req.log.error(`Error eliminando transacción: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -160,7 +192,8 @@ export const getActiveMonths = async (req: FastifyRequest, reply: FastifyReply) 
             month: parseInt(row.month)
         }))
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo meses activos: ${e.message}` })
+        req.log.error(`Error obteniendo meses activos: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }
 
@@ -225,11 +258,12 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
         const ahorroTotal = ahorroRes.rows[0].total ? parseFloat(ahorroRes.rows[0].total) : 0
 
         // Gastos por categoria (del mes)
+        const catWhereClause = 't.' + whereClause.replace(/fecha/g, 't.fecha');
         const catRes = await query(`
             SELECT c.nombre, SUM(t.monto) as total
             FROM transacciones t
             JOIN categorias c ON t.categoria_id = c.id
-            WHERE t.tipo = 'gasto' AND t.${whereClause.replace('usuario_id', 'usuario_id')}
+            WHERE t.tipo = 'gasto' AND ${catWhereClause}
             GROUP BY c.id, c.nombre
             ORDER BY total DESC
         `, queryParams)
@@ -284,6 +318,7 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             gastosPorTarjeta
         }
     } catch (e: any) {
-        return reply.status(500).send({ error: `Error obteniendo resumen: ${e.message}` })
+        req.log.error(`Error obteniendo resumen: ${e.message}`)
+        return reply.status(500).send({ error: 'Error interno del servidor' })
     }
 }

@@ -1,23 +1,50 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
+import rateLimit from '@fastify/rate-limit'
+import helmet from '@fastify/helmet'
 import dotenv from 'dotenv'
 import path from 'path'
 
-// Cargar .env de la raíz en desarrollo local
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 
 const server = Fastify({
-    logger: true
+    logger: true,
+    bodyLimit: 1048576
 })
 
+// CORS restringido al origen del frontend
 server.register(cors, {
-    origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    origin: process.env.APP_PUBLIC_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
 })
 
-server.register(jwt, {
-    secret: process.env.JWT_SECRET || 'supersecret'
+// JWT: forzar variable de entorno — sin fallback hardcodeado
+const jwtSecret = process.env.JWT_SECRET
+if (!jwtSecret) {
+    throw new Error('JWT_SECRET no está definido en el entorno. La aplicación no puede iniciar sin un secreto JWT.')
+}
+server.register(jwt, { secret: jwtSecret })
+
+// Rate limiting: global y estricto para login
+server.register(rateLimit, {
+    global: true,
+    max: 100,
+    timeWindow: '1 minute'
+})
+
+// Headers de seguridad HTTP
+server.register(helmet, {
+    contentSecurityPolicy: false // SPA con inline styles de React
+})
+
+// Headers adicionales manuales
+server.addHook('onSend', async (request, reply, payload) => {
+    reply.header('X-Content-Type-Options', 'nosniff')
+    reply.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+    if (typeof payload === 'string') {
+        reply.header('Content-Length', Buffer.byteLength(payload))
+    }
 })
 
 // Registrar rutas

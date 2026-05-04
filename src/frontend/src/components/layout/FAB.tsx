@@ -12,6 +12,7 @@ const FAB: React.FC<FABProps> = ({ onClick }) => {
         <motion.button
             className={styles.fab}
             onClick={onClick}
+            aria-label="Nuevo movimiento"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ scale: 0, opacity: 0 }}
@@ -19,7 +20,7 @@ const FAB: React.FC<FABProps> = ({ onClick }) => {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-            <Plus size={28} />
+            <Plus size={28} aria-hidden="true" />
         </motion.button>
     );
 };

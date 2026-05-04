@@ -48,14 +48,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
         <div className={styles.sidebarContent}>
             <div className={styles.header}>
                 <div className={styles.logoTitleContainer}>
-                    <Wallet size={24} className={styles.logoIcon} />
+                    <Wallet size={24} className={styles.logoIcon} aria-hidden="true" />
                     <div className={styles.logo}>Control de Gastos</div>
                 </div>
             </div>
 
             <div className={styles.navSection}>
                 <p className={styles.sectionTitle}>Principal</p>
-                <nav className={styles.nav}>
+                <nav className={styles.nav} aria-label="Principal">
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
@@ -63,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
                             onClick={handleLinkClick}
                             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
                         >
-                            <div className={styles.iconWrapper}>{item.icon}</div>
+                            <div className={styles.iconWrapper} aria-hidden="true">{item.icon}</div>
                             <span>{item.label}</span>
                         </NavLink>
                     ))}
@@ -72,13 +72,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
 
             <div className={styles.navSection}>
                 <p className={styles.sectionTitle}>Administración</p>
-                <nav className={styles.nav}>
+                <nav className={styles.nav} aria-label="Administración">
                     <button className={styles.navButton} onClick={onOpenCategoryModal}>
-                        <div className={styles.iconWrapper}><Tags size={20} /></div>
+                        <div className={styles.iconWrapper} aria-hidden="true"><Tags size={20} /></div>
                         <span>Categorías</span>
                     </button>
                     <button className={styles.navButton} onClick={onOpenCardModal}>
-                        <div className={styles.iconWrapper}><CreditCard size={20} /></div>
+                        <div className={styles.iconWrapper} aria-hidden="true"><CreditCard size={20} /></div>
                         <span>Tarjetas</span>
                     </button>
                     {user?.rol === 'admin' && (
@@ -104,8 +104,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
                         <span className={styles.userRole}>{user?.rol}</span>
                     </div>
                 </div>
-                <button className={styles.logoutBtn} onClick={logout} title="Cerrar sesión">
-                    <LogOut size={20} />
+                <button className={styles.logoutBtn} onClick={logout} title="Cerrar sesión" aria-label="Cerrar sesión">
+                    <LogOut size={20} aria-hidden="true" />
                 </button>
             </div>
         </div>
@@ -122,6 +122,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
                         exit={{ opacity: 0 }}
                         className={styles.overlay}
                         onClick={onClose}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Cerrar menú"
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
                     />
                 )}
             </AnimatePresence>

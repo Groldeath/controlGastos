@@ -33,10 +33,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const savedUser = sessionStorage.getItem('controlGastos_user');
 
         if (savedToken && savedUser) {
-            setToken(savedToken);
             try {
-                setUser(JSON.parse(savedUser));
-            } catch (e) {
+                const parsed = JSON.parse(savedUser);
+                if (parsed && typeof parsed.id === 'number') {
+                    setToken(savedToken);
+                    setUser(parsed);
+                } else {
+                    sessionStorage.removeItem('controlGastos_token');
+                    sessionStorage.removeItem('controlGastos_user');
+                }
+            } catch {
+                sessionStorage.removeItem('controlGastos_token');
                 sessionStorage.removeItem('controlGastos_user');
             }
         }
