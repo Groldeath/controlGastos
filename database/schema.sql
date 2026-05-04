@@ -55,10 +55,24 @@ CREATE TABLE IF NOT EXISTS presupuestos (
     fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 6. Tabla de Alcancias
+CREATE TABLE IF NOT EXISTS alcancias (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(10) NOT NULL DEFAULT 'ahorro' CHECK (tipo IN ('ahorro', 'fondo')),
+    saldo_actual DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    saldo_objetivo DECIMAL(12, 2),
+    monto_inicial DECIMAL(12, 2),
+    color_hex VARCHAR(7) DEFAULT '#3b82f6',
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indices para optimización de consultas comunes
 CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_fecha ON transacciones(usuario_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_tipo ON transacciones(usuario_id, tipo);
 CREATE INDEX IF NOT EXISTS idx_categorias_usuario ON categorias(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_tarjetas_usuario ON tarjetas_credito(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_presupuestos_usuario_periodo ON presupuestos(usuario_id, anio, mes);
+CREATE INDEX IF NOT EXISTS idx_alcancias_usuario ON alcancias(usuario_id);
 

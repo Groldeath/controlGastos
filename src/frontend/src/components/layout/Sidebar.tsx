@@ -11,7 +11,8 @@ import {
     LogOut,
     User,
     Wallet, // Added Wallet icon
-    PieChart // Added PieChart for budgets
+    PieChart, // Added PieChart for budgets
+    PiggyBank // Added for Alcancías
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -28,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
 
     const navItems = [
         { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+        { path: '/alcancias', icon: <PiggyBank size={20} />, label: 'Alcancías' },
         { path: '/budgets', icon: <PieChart size={20} />, label: 'Presupuestos' },
         { path: '/movements', icon: <ListOrdered size={20} />, label: 'Movimientos' },
     ];

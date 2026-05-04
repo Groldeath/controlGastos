@@ -27,12 +27,14 @@ import creditCardRoutes from './routes/creditCards'
 import transactionRoutes from './routes/transactions'
 import authRoutes from './routes/auth'
 import budgetRoutes from './routes/budgets'
+import alcanciaRoutes from './routes/alcancias'
 
 server.register(userRoutes, { prefix: '/api/users' })
 server.register(categoryRoutes, { prefix: '/api/categories' })
 server.register(creditCardRoutes, { prefix: '/api/credit-cards' })
 server.register(transactionRoutes, { prefix: '/api/transactions' })
 server.register(budgetRoutes, { prefix: '/api/presupuestos' })
+server.register(alcanciaRoutes, { prefix: '/api/alcancias' })
 server.register(authRoutes, { prefix: '/api/auth' })
 
 server.get('/ping', async (request, reply) => {
