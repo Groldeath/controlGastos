@@ -1,8 +1,27 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../db'
 import { Issuer, BaseClient } from 'openid-client'
+import crypto from 'crypto'
 
 let oidcClient: BaseClient | null = null;
+
+// Cookie de state OIDC — 5 minutos de vida, HttpOnly, SameSite=Lax
+const STATE_COOKIE = 'oidc_state'
+const STATE_TTL_MS = 5 * 60 * 1000
+
+function generarState(): string {
+    return crypto.randomBytes(32).toString('hex')
+}
+
+function setStateCookie(reply: FastifyReply, state: string) {
+    reply.setCookie(STATE_COOKIE, state, {
+        path: '/api/auth/oidc',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: STATE_TTL_MS / 1000
+    })
+}
 
 // Inicialización perezosa (lazy load) del cliente OIDC
 async function getOidcClient() {
@@ -27,11 +46,13 @@ async function getOidcClient() {
 export const oidcLogin = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
         const client = await getOidcClient();
-        // Generamos la URL de autorización
+        // Generamos state manual para protección CSRF sin depender de sesión del servidor
+        const state = generarState();
+        setStateCookie(reply, state);
+
         const url = client.authorizationUrl({
             scope: 'openid email profile',
-            // Deshabilitamos nonce para flujo stateless simplificado en este entorno
-            nonce: undefined,
+            state: state,
         });
         
         return reply.redirect(url);
@@ -45,8 +66,20 @@ export const oidcCallback = async (req: FastifyRequest, reply: FastifyReply) => 
     try {
         const client = await getOidcClient();
         const params = client.callbackParams(req.raw.url || req.url);
-        
-        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params);
+
+        // Validar state desde cookie para prevenir CSRF
+        const savedState = req.cookies?.[STATE_COOKIE];
+        if (!savedState || savedState !== params.state) {
+            req.log.warn('OIDC state inválido — posible ataque CSRF');
+            const publicUrl = (process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
+            return reply.redirect(`${publicUrl}/login?error=oidc_state_invalid`);
+        }
+        // Limpiar cookie inmediatamente
+        reply.clearCookie(STATE_COOKIE, { path: '/api/auth/oidc' });
+
+        const tokenSet = await client.callback(client.metadata.redirect_uris![0], params, {
+            state: params.state
+        });
         
         const claims = tokenSet.claims();
         req.log.info('OIDC Claims recibidos exitosamente');

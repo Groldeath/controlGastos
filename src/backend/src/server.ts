@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 import rateLimit from '@fastify/rate-limit'
 import helmet from '@fastify/helmet'
+import cookie from '@fastify/cookie'
 import dotenv from 'dotenv'
 import path from 'path'
 
@@ -37,6 +38,9 @@ server.register(rateLimit, {
 server.register(helmet, {
     contentSecurityPolicy: false // SPA con inline styles de React
 })
+
+// Cookies para OIDC state
+server.register(cookie)
 
 // Headers adicionales manuales
 server.addHook('onSend', async (request, reply, payload) => {
