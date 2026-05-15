@@ -17,13 +17,14 @@ interface SummaryData {
     ahorroTotal: number;
     gastosPorCategoria: { nombre: string; total: number }[];
     gastosPorTarjeta: { nombre: string; total: number; dia_corte?: number; dia_pago?: number }[];
+    gastosPorTarjetaMes: { nombre: string; total: number; dia_corte?: number; dia_pago?: number }[];
 }
 
 const Dashboard: React.FC = () => {
     const { selectedMonth, selectedYear, refreshTrigger } = useAppContext();
     const [summary, setSummary] = useState<SummaryData>({
         ingresos: 0, gastos: 0, balance: 0, balanceNetoReal: 0, ahorroTotal: 0,
-        gastosPorCategoria: [], gastosPorTarjeta: []
+        gastosPorCategoria: [], gastosPorTarjeta: [], gastosPorTarjetaMes: []
     });
 
     const [loading, setLoading] = useState(true);
@@ -175,6 +176,7 @@ const Dashboard: React.FC = () => {
                         <BreakdownCard
                             title="Gastos por tarjeta"
                             data={summary.gastosPorTarjeta}
+                            mesData={summary.gastosPorTarjetaMes}
                             icon={<CreditCard size={20} />}
                             delay={2}
                             isCardData={true}

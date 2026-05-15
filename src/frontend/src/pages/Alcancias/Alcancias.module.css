@@ -127,6 +127,13 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.sectionTotal {
+  margin-left: auto;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 /* === Grid === */
 .grid {
   display: grid;

@@ -69,6 +69,12 @@
     gap: var(--spacing-md);
 }
 
+@media (max-width: 480px) {
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .formGroup {
     display: flex;
     flex-direction: column;

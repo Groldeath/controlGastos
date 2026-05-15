@@ -55,7 +55,7 @@ const Select: React.FC<SelectProps> = ({ options, value, onChange, placeholder =
                                     setIsOpen(false);
                                 }}
                             >
-                                {option.label}
+                                <span className={styles.optionLabel}>{option.label}</span>
                                 {option.value === value && <Check size={16} className={styles.checkIcon} />}
                             </li>
                         ))}

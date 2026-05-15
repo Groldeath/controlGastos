@@ -306,6 +306,26 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             dia_pago: r.dia_pago
         }))
 
+        let gastosPorTarjetaMes: { nombre: string; total: number; dia_corte: number; dia_pago: number }[] = []
+        if (month && year) {
+            const mesCardRes = await query(`
+                SELECT tc.nombre, tc.dia_corte, tc.dia_pago, SUM(t.monto) as total
+                FROM transacciones t
+                JOIN tarjetas_credito tc ON t.tarjeta_credito_id = tc.id
+                WHERE t.tipo = 'gasto' AND t.usuario_id = $1
+                  AND EXTRACT(MONTH FROM t.fecha) = $2 AND EXTRACT(YEAR FROM t.fecha) = $3
+                GROUP BY tc.id, tc.nombre, tc.dia_corte, tc.dia_pago
+                ORDER BY total DESC
+            `, [user.id, parseInt(month), parseInt(year)])
+
+            gastosPorTarjetaMes = mesCardRes.rows.map(r => ({
+                nombre: r.nombre,
+                total: parseFloat(r.total),
+                dia_corte: r.dia_corte,
+                dia_pago: r.dia_pago
+            }))
+        }
+
         return {
             ingresos,
             gastos,
@@ -315,7 +335,8 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
             gastosSinPresupuesto,
             ahorroTotal,
             gastosPorCategoria,
-            gastosPorTarjeta
+            gastosPorTarjeta,
+            gastosPorTarjetaMes
         }
     } catch (e: any) {
         req.log.error(`Error obteniendo resumen: ${e.message}`)

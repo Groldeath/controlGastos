@@ -16,13 +16,42 @@ interface BreakdownCardProps {
     icon?: React.ReactNode;
     delay?: number;
     isCardData?: boolean;
+    mesData?: BreakdownItem[];
 }
 
-const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay = 0, isCardData = false }) => {
+const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay = 0, isCardData = false, mesData }) => {
     const { selectedMonth } = useAppContext();
-    
-    // Para categorías, queremos que la barra represente el porcentaje respecto a TODOS los gastos de la lista
+
     const totalSum = data.length > 0 ? data.reduce((acc, curr) => acc + curr.total, 0) : 1;
+
+    const totalTarjetas = isCardData ? Math.max(mesData?.length || 0, data.length) : 0;
+    const necesitaScroll = totalTarjetas > 2;
+
+    const formatearFechas = (diaCorte: number, diaPago: number): string => {
+        const currentMonthIdx = selectedMonth - 1;
+        const nextMonthIdx = (currentMonthIdx + 1) % 12;
+        const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        const mesCorteStr = meses[currentMonthIdx];
+        const mesPagoIdx = (diaPago > diaCorte) ? currentMonthIdx : nextMonthIdx;
+        const mesPagoStr = meses[mesPagoIdx];
+        return `(${String(diaCorte).padStart(2, '0')}/${mesCorteStr} | ${String(diaPago).padStart(2, '0')}/${mesPagoStr})`;
+    };
+
+    const renderTarjetaItem = (item: BreakdownItem, mostrarFechas: boolean, key: string) => (
+        <li key={key} className={styles.listItem}>
+            <div className={styles.labelGroup}>
+                <div className={styles.nameBlock}>
+                    <span className={styles.name}>{item.nombre}</span>
+                    {mostrarFechas && item.dia_corte && item.dia_pago && (
+                        <span className={styles.cardDates}>{formatearFechas(item.dia_corte, item.dia_pago)}</span>
+                    )}
+                </div>
+                <span className={styles.amount}>
+                    ${item.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                </span>
+            </div>
+        </li>
+    );
 
     return (
         <motion.div
@@ -39,30 +68,31 @@ const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay 
                 </div>
             </div>
 
-            <div className={styles.content}>
-                {data.length === 0 ? (
+            <div className={`${styles.content} ${necesitaScroll ? styles.contentScroll : ''}`}>
+                {isCardData && mesData && mesData.length > 0 ? (
+                    <>
+                        <ul className={styles.list} style={necesitaScroll ? { maxHeight: 'none', overflow: 'visible' } : undefined}>
+                            {mesData.map((item, i) => renderTarjetaItem(item, false, `mes-${i}`))}
+                        </ul>
+                        <div className={styles.sectionTitle}>Gasto al corte</div>
+                        {data.length === 0 ? (
+                            <p className={styles.empty}>No hay datos de corte registrados.</p>
+                        ) : (
+                            <ul className={styles.list} style={necesitaScroll ? { maxHeight: 'none', overflow: 'visible' } : undefined}>
+                                {data.map((item, i) => renderTarjetaItem(item, true, `corte-${i}`))}
+                            </ul>
+                        )}
+                    </>
+                ) : data.length === 0 ? (
                     <p className={styles.empty}>No hay datos registrados este mes.</p>
                 ) : (
                     <ul className={styles.list}>
                         {data.map((item, index) => {
                             const percentage = Math.round((item.total / totalSum) * 100);
 
-                            // Formatear fechas para tarjetas (si existen)
                             let displayDates = null;
                             if (isCardData && item.dia_corte && item.dia_pago) {
-                                // selectedMonth is 1-12
-                                const currentMonthIdx = selectedMonth - 1; // 0-11
-                                const nextMonthIdx = (currentMonthIdx + 1) % 12;
-
-                                const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-                                
-                                const mesCorteStr = meses[currentMonthIdx];
-                                // Si el día de pago es mayor al de corte, cae en el mismo mes.
-                                // Si es menor, cae en el siguiente mes.
-                                const mesPagoIdx = (item.dia_pago > item.dia_corte) ? currentMonthIdx : nextMonthIdx;
-                                const mesPagoStr = meses[mesPagoIdx];
-
-                                displayDates = `(${String(item.dia_corte).padStart(2, '0')}/${mesCorteStr} | ${String(item.dia_pago).padStart(2, '0')}/${mesPagoStr})`;
+                                displayDates = formatearFechas(item.dia_corte, item.dia_pago);
                             }
 
                             return (

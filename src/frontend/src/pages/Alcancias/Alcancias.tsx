@@ -157,10 +157,11 @@ const Alcancias: React.FC = () => {
     };
 
     const formatCurrency = (value: number) =>
-        value.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        Number(value).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     const ahorros = alcancias.filter(a => a.tipo === 'ahorro');
     const fondos = alcancias.filter(a => a.tipo === 'fondo');
+    const totalAhorro = ahorros.reduce((acc, a) => acc + a.saldo_actual, 0);
 
     const renderAhorroCard = (a: Alcancia) => {
         const tieneObjetivo = a.saldo_objetivo && a.saldo_objetivo > 0;
@@ -344,6 +345,7 @@ const Alcancias: React.FC = () => {
                             <h2 className={styles.sectionTitle}>
                                 <PiggyBank size={20} />
                                 Ahorro
+                                <span className={styles.sectionTotal}>Total: ${formatCurrency(totalAhorro)}</span>
                             </h2>
                             <motion.div className={styles.grid} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
                                 {ahorros.map(a => renderAhorroCard(a))}

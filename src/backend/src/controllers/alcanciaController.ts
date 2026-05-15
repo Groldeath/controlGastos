@@ -29,7 +29,12 @@ export const createAlcancia = async (req: FastifyRequest, reply: FastifyReply) =
             'INSERT INTO alcancias (usuario_id, nombre, tipo, saldo_actual, saldo_objetivo, monto_inicial, color_hex) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
             [user.id, nombre, tipo, saldoInicial, saldo_objetivo || null, monto_inicial || null, color_hex || '#3b82f6']
         )
-        return reply.status(201).send(res.rows[0])
+        return reply.status(201).send({
+            ...res.rows[0],
+            saldo_actual: parseFloat(res.rows[0].saldo_actual),
+            saldo_objetivo: res.rows[0].saldo_objetivo ? parseFloat(res.rows[0].saldo_objetivo) : null,
+            monto_inicial: res.rows[0].monto_inicial ? parseFloat(res.rows[0].monto_inicial) : null
+        })
     } catch (e: any) {
         req.log.error(`Error creando alcancía: ${e.message}`)
         return reply.status(500).send({ error: 'Error interno del servidor' })
@@ -88,7 +93,12 @@ export const updateAlcancia = async (req: FastifyRequest, reply: FastifyReply) =
             'UPDATE alcancias SET nombre = $1, saldo_objetivo = $2, monto_inicial = $3, color_hex = $4, saldo_actual = $5 WHERE id = $6 AND usuario_id = $7 RETURNING *',
             [finalNombre, finalObjetivo, finalMontoInicial, finalColor, finalSaldo, id, user.id]
         )
-        return res.rows[0]
+        return {
+            ...res.rows[0],
+            saldo_actual: parseFloat(res.rows[0].saldo_actual),
+            saldo_objetivo: res.rows[0].saldo_objetivo ? parseFloat(res.rows[0].saldo_objetivo) : null,
+            monto_inicial: res.rows[0].monto_inicial ? parseFloat(res.rows[0].monto_inicial) : null
+        }
     } catch (e: any) {
         req.log.error(`Error actualizando alcancía: ${e.message}`)
         return reply.status(500).send({ error: 'Error interno del servidor' })
@@ -132,7 +142,9 @@ export const depositar = async (req: FastifyRequest, reply: FastifyReply) => {
         if (res.rowCount === 0) return reply.status(404).send({ error: 'Alcancía no encontrada' })
         return {
             ...res.rows[0],
-            saldo_actual: parseFloat(res.rows[0].saldo_actual)
+            saldo_actual: parseFloat(res.rows[0].saldo_actual),
+            saldo_objetivo: res.rows[0].saldo_objetivo ? parseFloat(res.rows[0].saldo_objetivo) : null,
+            monto_inicial: res.rows[0].monto_inicial ? parseFloat(res.rows[0].monto_inicial) : null
         }
     } catch (e: any) {
         req.log.error(`Error depositando en alcancía: ${e.message}`)
@@ -164,7 +176,9 @@ export const retirar = async (req: FastifyRequest, reply: FastifyReply) => {
         )
         return {
             ...res.rows[0],
-            saldo_actual: parseFloat(res.rows[0].saldo_actual)
+            saldo_actual: parseFloat(res.rows[0].saldo_actual),
+            saldo_objetivo: res.rows[0].saldo_objetivo ? parseFloat(res.rows[0].saldo_objetivo) : null,
+            monto_inicial: res.rows[0].monto_inicial ? parseFloat(res.rows[0].monto_inicial) : null
         }
     } catch (e: any) {
         req.log.error(`Error retirando de alcancía: ${e.message}`)

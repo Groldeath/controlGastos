@@ -48,6 +48,24 @@
     flex-direction: column;
 }
 
+.contentScroll {
+    overflow-y: auto;
+    min-height: 0;
+    max-height: 240px;
+    padding-right: 8px;
+}
+
+.contentScroll::-webkit-scrollbar {
+    width: 6px;
+}
+.contentScroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.contentScroll::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+}
+
 .empty {
     color: var(--text-secondary);
     font-size: 0.9rem;
@@ -101,6 +119,17 @@
     font-size: 0.75rem;
     color: var(--text-secondary);
     opacity: 0.8;
+}
+
+.sectionTitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-sm) 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-xs);
 }
 
 .labelGroup {
