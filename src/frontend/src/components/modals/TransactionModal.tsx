@@ -29,10 +29,17 @@ interface TransactionModalProps {
 
 type TipoTransaccion = 'gasto' | 'ingreso' | 'ahorro';
 
+const hoyLocal = () => {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+};
+
 const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSuccess, initialData }) => {
     const [tipo, setTipo] = useState<TipoTransaccion>('gasto');
     const [monto, setMonto] = useState('');
-    const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+    const [fecha, setFecha] = useState(hoyLocal());
     const [descripcion, setDescripcion] = useState('');
     const [categoriaId, setCategoriaId] = useState('');
     const [tarjetaId, setTarjetaId] = useState('');
@@ -62,7 +69,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 // Reset form
                 setTipo('gasto');
                 setMonto('');
-                setFecha(new Date().toISOString().split('T')[0]);
+                setFecha(hoyLocal());
                 setDescripcion('');
                 setCategoriaId('');
                 setTarjetaId('');
@@ -76,9 +83,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const loadInitialData = async () => {
         setLoadingData(true);
         try {
-            const currentFecha = initialData ? new Date(initialData.fecha) : new Date();
-            const m = currentFecha.getMonth() + 1;
-            const y = currentFecha.getFullYear();
+            let m: number, y: number;
+            if (initialData && initialData.fecha) {
+                [y, m] = String(initialData.fecha).split('T')[0].split('-').map(Number);
+            } else {
+                const hoy = new Date();
+                m = hoy.getMonth() + 1;
+                y = hoy.getFullYear();
+            }
 
             const [catsRes, cardsRes, budgetsRes] = await Promise.all([
                 fetchApi('/api/categories'),
@@ -104,9 +116,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     // Recargar presupuestos cuando cambia la fecha
     useEffect(() => {
         if (!isOpen || loadingData || !fecha) return;
-        const d = new Date(fecha);
-        const m = d.getMonth() + 1;
-        const y = d.getFullYear();
+        const [y, m] = fecha.split('-').map(Number);
         
         fetchApi(`/api/presupuestos?mes=${m}&anio=${y}`)
             .then(res => {
