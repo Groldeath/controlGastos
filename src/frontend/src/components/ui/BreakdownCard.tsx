@@ -20,7 +20,7 @@ interface BreakdownCardProps {
 }
 
 const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay = 0, isCardData = false, mesData }) => {
-    const { selectedMonth } = useAppContext();
+    const { selectedMonth, showGastoAlCorte } = useAppContext();
 
     const totalSum = data.length > 0 ? data.reduce((acc, curr) => acc + curr.total, 0) : 1;
 
@@ -74,15 +74,21 @@ const BreakdownCard: React.FC<BreakdownCardProps> = ({ title, data, icon, delay 
                         <ul className={styles.list} style={necesitaScroll ? { maxHeight: 'none', overflow: 'visible' } : undefined}>
                             {mesData.map((item, i) => renderTarjetaItem(item, false, `mes-${i}`))}
                         </ul>
-                        <div className={styles.sectionTitle}>Gasto al corte</div>
-                        {data.length === 0 ? (
-                            <p className={styles.empty}>No hay datos de corte registrados.</p>
-                        ) : (
-                            <ul className={styles.list} style={necesitaScroll ? { maxHeight: 'none', overflow: 'visible' } : undefined}>
-                                {data.map((item, i) => renderTarjetaItem(item, true, `corte-${i}`))}
-                            </ul>
+                        {showGastoAlCorte && (
+                            <>
+                                <div className={styles.sectionTitle}>Gasto al corte</div>
+                                {data.length === 0 ? (
+                                    <p className={styles.empty}>No hay datos de corte registrados.</p>
+                                ) : (
+                                    <ul className={styles.list} style={necesitaScroll ? { maxHeight: 'none', overflow: 'visible' } : undefined}>
+                                        {data.map((item, i) => renderTarjetaItem(item, true, `corte-${i}`))}
+                                    </ul>
+                                )}
+                            </>
                         )}
                     </>
+                ) : isCardData && !showGastoAlCorte ? (
+                    <p className={styles.empty}>No hay datos registrados este mes.</p>
                 ) : data.length === 0 ? (
                     <p className={styles.empty}>No hay datos registrados este mes.</p>
                 ) : (

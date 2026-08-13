@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS alcancias (
     fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 7. Tabla de Ajustes por Usuario (preferencias)
+CREATE TABLE IF NOT EXISTS ajustes_usuario (
+    usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+    tema VARCHAR(10) NOT NULL DEFAULT 'dark' CHECK (tema IN ('dark', 'light')),
+    mostrar_gasto_corte BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indices para optimización de consultas comunes
 CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_fecha ON transacciones(usuario_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_transacciones_usuario_tipo ON transacciones(usuario_id, tipo);

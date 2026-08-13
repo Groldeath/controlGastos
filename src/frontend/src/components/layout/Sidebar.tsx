@@ -12,7 +12,8 @@ import {
     User,
     Wallet, // Added Wallet icon
     PieChart, // Added PieChart for budgets
-    PiggyBank // Added for Alcancías
+    PiggyBank, // Added for Alcancías
+    Settings
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -22,9 +23,10 @@ interface SidebarProps {
     isMobile: boolean;
     onOpenCategoryModal: () => void;
     onOpenCardModal: () => void;
+    onOpenSettingsModal: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCategoryModal, onOpenCardModal }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCategoryModal, onOpenCardModal, onOpenSettingsModal }) => {
     const { user, logout } = useAuth();
 
     const navItems = [
@@ -91,6 +93,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isMobile, onOpenCate
                             <span>Usuarios</span>
                         </NavLink>
                     )}
+                    <button className={styles.navButton} onClick={onOpenSettingsModal}>
+                        <div className={styles.iconWrapper} aria-hidden="true"><Settings size={20} /></div>
+                        <span>Ajustes</span>
+                    </button>
                 </nav>
             </div>
 

@@ -7,6 +7,7 @@ import { AnimatePresence } from 'framer-motion';
 import CategoryModal from '../modals/CategoryModal';
 import CreditCardModal from '../modals/CreditCardModal';
 import TransactionModal from '../modals/TransactionModal';
+import SettingsModal from '../modals/SettingsModal';
 import { useAppContext } from '../../context/AppContext';
 import styles from './GlobalLayout.module.css';
 
@@ -21,6 +22,7 @@ const GlobalLayout: React.FC = () => {
     const [isCardModalOpen, setCardModalOpen] = useState(false);
     const [isTransactionModalOpen, setTransactionModalOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState<any>(null);
+    const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
 
     const { triggerRefresh, refreshAvailableMonths } = useAppContext();
 
@@ -53,6 +55,7 @@ const GlobalLayout: React.FC = () => {
                 isMobile={isMobile}
                 onOpenCategoryModal={() => setCategoryModalOpen(true)}
                 onOpenCardModal={() => setCardModalOpen(true)}
+                onOpenSettingsModal={() => setSettingsModalOpen(true)}
             />
 
             <main className={styles.mainContent} id="main-content">
@@ -90,6 +93,10 @@ const GlobalLayout: React.FC = () => {
             <CreditCardModal
                 isOpen={isCardModalOpen}
                 onClose={() => setCardModalOpen(false)}
+            />
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setSettingsModalOpen(false)}
             />
             <TransactionModal
                 isOpen={isTransactionModalOpen}
