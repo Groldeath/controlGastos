@@ -152,7 +152,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 body.categoria_id = parseInt(categoriaId);
             }
 
-            if (tipo === 'gasto' && tarjetaId !== '') {
+            if ((tipo === 'gasto' || tipo === 'ingreso') && tarjetaId !== '') {
                 body.tarjeta_credito_id = parseInt(tarjetaId);
             }
 
@@ -281,6 +281,20 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                         )}
 
                         {tipo === 'gasto' && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Tarjeta de Crédito</label>
+                                <Select
+                                    value={tarjetaId}
+                                    onChange={setTarjetaId}
+                                    options={[
+                                        { value: '', label: 'Ninguna' },
+                                        ...tarjetas.map(t => ({ value: t.id.toString(), label: t.nombre }))
+                                    ]}
+                                />
+                            </div>
+                        )}
+
+                        {tipo === 'ingreso' && (
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Tarjeta de Crédito</label>
                                 <Select

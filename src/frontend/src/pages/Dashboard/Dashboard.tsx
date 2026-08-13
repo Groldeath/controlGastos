@@ -235,7 +235,7 @@ const Dashboard: React.FC = () => {
                                                         <td className={styles.descCell}>{trx.descripcion}</td>
                                                         <td className={styles.catCell}>{trx.categoria?.nombre || 'General'}</td>
                                                         <td className={styles.catCell}>{trx.tipo === 'gasto' ? (trx.presupuesto?.nombre || '-') : '-'}</td>
-                                                        <td className={styles.cardCell}>{trx.tipo === 'gasto' ? (trx.tarjeta?.nombre || '-') : '-'}</td>
+                                                        <td className={styles.cardCell}>{(trx.tipo === 'gasto' || trx.tipo === 'ingreso') ? (trx.tarjeta?.nombre || '-') : '-'}</td>
                                                         <td className={`${styles.amountCell} ${trx.tipo === 'gasto' ? styles.amountExp :
                                                             trx.tipo === 'ingreso' ? styles.amountInc :
                                                                 (parseFloat(trx.monto) < 0 ? styles.amountExp : styles.amountSav)

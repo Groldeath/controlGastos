@@ -19,8 +19,11 @@ export const createTransaction = async (req: FastifyRequest, reply: FastifyReply
 
     if (tipo !== 'gasto') {
         finalCategoriaId = null;
-        finalTarjetaId = null;
         finalPresupuestoId = null;
+    }
+    // Solo gasto e ingreso pueden referenciar una tarjeta (el ingreso representa un abono/depósito)
+    if (tipo !== 'gasto' && tipo !== 'ingreso') {
+        finalTarjetaId = null;
     }
 
     // Verificar propiedad de los IDs foráneos
@@ -127,7 +130,7 @@ export const updateTransaction = async (req: FastifyRequest, reply: FastifyReply
     }
 
     let finalCategoriaId = tipo === 'gasto' && categoria_id ? parseInt(categoria_id) : null;
-    let finalTarjetaId = tipo === 'gasto' && tarjeta_credito_id ? parseInt(tarjeta_credito_id) : null;
+    let finalTarjetaId = (tipo === 'gasto' || tipo === 'ingreso') && tarjeta_credito_id ? parseInt(tarjeta_credito_id) : null;
     let finalPresupuestoId = tipo === 'gasto' && presupuesto_id ? parseInt(presupuesto_id) : null;
 
     // Verificar propiedad de los IDs foráneos
@@ -270,28 +273,30 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
 
         const gastosPorCategoria = catRes.rows.map(r => ({ nombre: r.nombre, total: parseFloat(r.total) }))
 
-        // Gastos por tarjeta (usando la ventana de fecha de corte)
-        let tarjWhereClause = 't.tipo = $1 AND t.usuario_id = $2';
-        let tarjQueryParams: any[] = ['gasto', user.id];
+        // Movimientos por tarjeta (usando la ventana de fecha de corte).
+        // Los gastos suman a la deuda y los ingresos (abonos) la reducen.
+        let tarjWhereClause = 't.usuario_id = $1';
+        let tarjQueryParams: any[] = [user.id];
         
         if (month && year) {
             tarjWhereClause += `
                 AND t.fecha > LEAST(
-                    make_date(($4)::int, ($3)::int, 1) - interval '1 month' + (tc.dia_corte - 1) * interval '1 day',
-                    make_date(($4)::int, ($3)::int, 1) - interval '1 day'
+                    make_date(($3)::int, ($2)::int, 1) - interval '1 month' + (tc.dia_corte - 1) * interval '1 day',
+                    make_date(($3)::int, ($2)::int, 1) - interval '1 day'
                 )::DATE
                 AND t.fecha <= LEAST(
-                    make_date(($4)::int, ($3)::int, 1) + (tc.dia_corte - 1) * interval '1 day',
-                    make_date(($4)::int, ($3)::int, 1) + interval '1 month - 1 day'
+                    make_date(($3)::int, ($2)::int, 1) + (tc.dia_corte - 1) * interval '1 day',
+                    make_date(($3)::int, ($2)::int, 1) + interval '1 month - 1 day'
                 )::DATE
             `;
-            // Push values for $3 and $4
+            // Push values for $2 (mes) and $3 (año)
             tarjQueryParams.push(parseInt(month));
             tarjQueryParams.push(parseInt(year));
         }
 
         const tarjRes = await query(`
-            SELECT tc.nombre, tc.dia_corte, tc.dia_pago, SUM(t.monto) as total
+            SELECT tc.nombre, tc.dia_corte, tc.dia_pago,
+                SUM(CASE WHEN t.tipo = 'ingreso' THEN -t.monto ELSE t.monto END) as total
             FROM transacciones t
             JOIN tarjetas_credito tc ON t.tarjeta_credito_id = tc.id
             WHERE ${tarjWhereClause}
@@ -309,10 +314,11 @@ export const getSummary = async (req: FastifyRequest, reply: FastifyReply) => {
         let gastosPorTarjetaMes: { nombre: string; total: number; dia_corte: number; dia_pago: number }[] = []
         if (month && year) {
             const mesCardRes = await query(`
-                SELECT tc.nombre, tc.dia_corte, tc.dia_pago, SUM(t.monto) as total
+                SELECT tc.nombre, tc.dia_corte, tc.dia_pago,
+                    SUM(CASE WHEN t.tipo = 'ingreso' THEN -t.monto ELSE t.monto END) as total
                 FROM transacciones t
                 JOIN tarjetas_credito tc ON t.tarjeta_credito_id = tc.id
-                WHERE t.tipo = 'gasto' AND t.usuario_id = $1
+                WHERE t.usuario_id = $1
                   AND EXTRACT(MONTH FROM t.fecha) = $2 AND EXTRACT(YEAR FROM t.fecha) = $3
                 GROUP BY tc.id, tc.nombre, tc.dia_corte, tc.dia_pago
                 ORDER BY total DESC
